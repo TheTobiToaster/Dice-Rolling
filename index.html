@@ -87,6 +87,8 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .felt .seal{position:absolute;top:8px;right:8px;display:none;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;background:linear-gradient(180deg,#f6d77d,#c8922e);color:#3a2306;font-weight:800;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6);pointer-events:none}
 .felt .seal svg{width:20px;height:20px}
 .tray.secret .felt .seal{display:inline-flex}
+.felt .more{position:absolute;left:8px;bottom:6px;color:#fbeee4;font-size:12px;white-space:nowrap;font-weight:700;background:rgba(0,0,0,.4);padding:2px 9px;border-radius:999px;pointer-events:none}
+.felt .more:empty{display:none}
 .tray.secret .felt{box-shadow:inset 0 0 0 2px #e3b04b,inset 0 0 26px rgba(227,176,75,.4),inset 0 6px 18px rgba(0,0,0,.6)}
 .tray.secret{background:linear-gradient(160deg,#a07a32,#6b4a22 35%,#3a2213)}
 .log li.secret{box-shadow:inset 0 0 0 1.5px #e3b04b}
@@ -278,7 +280,8 @@ function parseRoll(src){
     if (sides < 2 || sides > 1000) throw 'Dice need between 2 and 1000 sides.';
     let op = m[4] || null; const x = m[5] !== undefined ? +m[5] : 0;
     if (op === 'd') op = 'dl'; if (op === 'k') op = 'kh';
-    if (op && (x < 0 || x > n)) throw `Can't ${op[0] === 'k' ? 'keep' : 'drop'} ${x} of ${n} dice.`;
+    if (op && op[0] === 'k' && (x < 1 || x > n)) throw `Can't keep ${x} of ${n} dice. Keep between 1 and ${n}.`;
+    if (op && op[0] === 'd' && (x < 0 || x >= n)) throw `Can't drop ${x} of ${n} dice. At least one die has to count.`;
     terms.push({ k: 'd', sign, n, sides, op, x });
   }
   if (terms.length > 20) throw 'That roll has too many parts.';
@@ -365,7 +368,7 @@ function newCode(){ const a = 'abcdefghijklmnopqrstuvwxyz0123456789'; let c = 'p
 function setHash(c){ try { history.replaceState(null, '', '#' + c); } catch {} }
 function startHosting(){
   if (!code) { code = newCode(); setHash(code); }
-  isHost = true; store.set('dice-host-code', code);
+  isHost = true; store.set('dice-host-code', code); loadSeats();
   rolls = (store.get('dice-hist-' + code) || []).filter(r => r && typeof r.t === 'number');
   rolls.forEach(r => revealed.add(r.id));
   drawMe(); renderLog(); sendRoster();
@@ -393,6 +396,14 @@ function startHosting(){
    removes anyone who misses 4 check-ins in a row. Counting missed check-ins (not seconds) means a player
    whose tab is in the background, where browsers slow timers down, isn't dropped by mistake. */
 let hbN = 0, hbTimer = null;
+const seatIds = new Map();   // private seat → public player id, so a reload keeps the same tray and hidden-roll history
+function loadSeats(){ try { for (const [k, v] of (store.get('dice-seats-' + code) || [])) seatIds.set(k, v); } catch {} }
+function pubFor(seat){
+  if (seat && seatIds.has(seat)) return seatIds.get(seat);
+  const id = 'p' + Math.random().toString(36).slice(2, 10);
+  if (seat) { seatIds.set(seat, id); store.set('dice-seats-' + code, [...seatIds].slice(-60)); }
+  return id;
+}
 function dropPlayer(c){
   const p = players.get(c.peer);
   if (!p || p.conn !== c) return;
@@ -417,12 +428,13 @@ function onHostData(c, d){
   if (d.type === 'hello') {
     const isNew = !players.has(c.peer), seat = cleanStr(d.seat, 40);
     if (seat) for (const p of [...players.values()]) if (p.seat === seat && p.id !== c.peer) { players.delete(p.id); try { p.conn.close(); } catch {} }   // same person rejoined: drop their old tray
-    players.set(c.peer, { id: c.peer, conn: c, seat, seen: hbN, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) });
-    if (isNew) c.send({ type: 'welcome', you: c.peer, history: rolls.filter(r => !r.secret || r.cid === c.peer).slice(0, 150) });
+    const pub = (players.get(c.peer) || {}).pub || pubFor(seat);
+    players.set(c.peer, { id: c.peer, pub, conn: c, seat, seen: hbN, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) });
+    if (isNew) c.send({ type: 'welcome', you: pub, history: rolls.filter(r => !r.secret || r.cid === pub).slice(0, 150) });
     sendRoster();
   } else if (d.type === 'roll') {
     const p = players.get(c.peer); if (!p) return;
-    try { makeRoll({ cid: p.id, name: p.name, color: p.color, role: 'player' }, d); }
+    try { makeRoll({ cid: p.pub, name: p.name, color: p.color, role: 'player' }, d); }
     catch (e) { c.send({ type: 'error', msg: typeof e === 'string' ? e : 'That roll could not be read.' }); }
   }
 }
@@ -432,12 +444,12 @@ function makeRoll(who, req){
   const roll = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...who, label: cleanStr(req.label, 40), mode: m, secret: !!req.hidden, t: Date.now(), ...out };
   rolls = [roll, ...rolls].slice(0, 200);
   store.set('dice-hist-' + code, rolls);
-  for (const p of players.values()) if (!roll.secret || p.id === roll.cid) { try { p.conn.send({ type: 'roll', roll }); } catch {} }
+  for (const p of players.values()) if (!roll.secret || p.pub === roll.cid) { try { p.conn.send({ type: 'roll', roll }); } catch {} }
   throwDice(roll);
 }
 function sendRoster(){
   if (!isHost) return;
-  const list = [{ name: me?.name || 'DM', color: me?.color || '#888888', role: 'dm', id: 'dm' }, ...[...players.values()].map(p => ({ name: p.name, color: p.color, role: 'player', id: p.id }))];
+  const list = [{ name: me?.name || 'DM', color: me?.color || '#888888', role: 'dm', id: 'dm' }, ...[...players.values()].map(p => ({ name: p.name, color: p.color, role: 'player', id: p.pub }))];
   for (const p of players.values()) { try { p.conn.send({ type: 'roster', list }); } catch {} }
   renderTrays(list);
 }
@@ -728,7 +740,7 @@ function fitTrays(){
 window.addEventListener('resize', () => fitTrays());
 function makeTray(id){
   const el = document.createElement('div'); el.className = 'tray';
-  el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Hidden</div><div class="banner"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
+  el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Hidden</div><div class="banner"></div><div class="more"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
   const t = { id, el, cv: el.querySelector('canvas'), rolling: false, roll: null, w: 0, h: 0, lastClack: 0, color: '#888888', name: '', meshes: [], sim: null, scene: null };
   t.ctx = t.cv.getContext('2d');
   t.ro = new ResizeObserver(() => sizeTray(t)); t.ro.observe(el.querySelector('.felt'));
@@ -753,6 +765,7 @@ function ensureScene(t){
   t.group = new THREE.Group(); sc.add(t.group); t.scene = sc;
 }
 function clearDice(t){
+  const mo = t.el.querySelector('.more'); if (mo) mo.textContent = '';
   if (!t.group) return;
   for (const m of t.meshes) m.traverse(o => { if (o.material && o.userData.own) o.material.dispose(); });
   t.group.clear(); t.meshes = []; t.sim = null;
@@ -770,7 +783,8 @@ function flatDice(roll){
 }
 function build(t, roll){
   ensureScene(t); clearDice(t);
-  const all = flatDice(roll).filter(d => dieVerts(d.s)).slice(0, 30);
+  const every = flatDice(roll).filter(d => dieVerts(d.s)), all = every.slice(0, 30);
+  t.el.querySelector('.more').textContent = every.length > 30 ? `+${every.length - 30} more dice` : '';
   const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.45, Math.min(1.2, Math.sqrt(area / (Math.max(1, all.length) * 11))));
   const specs = all.map(d => ({ ...d, sc }));
   const col = okC(roll.color), gold = !!roll.secret, ink = lum(col) > .6 ? '#1b1013' : gold ? '#ffd46b' : '#fffaf2';
