@@ -81,9 +81,15 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .tray .top{display:flex;align-items:center;gap:8px;color:#fbeee4;font-weight:800;padding:0 4px 8px;font-size:clamp(15px,1.1vw,18px)}
 .tray .top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;background:var(--brass);color:#2a1408;white-space:nowrap}
-.tag.h{background:#14080b;color:#f1e6dc}.tag.dm{background:var(--red);color:#fff}.tag.f{background:#e9e2da;color:#22161a}
+.tag.h{background:linear-gradient(180deg,#f6d77d,#c8922e);color:#3a2306}.tag.dm{background:var(--red);color:#fff}.tag.f{background:#e9e2da;color:#22161a}
 .felt{--pc:#8f1026;position:relative;aspect-ratio:3/2;border-radius:12px;background:#2a1a1c;background:radial-gradient(120% 100% at 50% 20%,color-mix(in oklab,var(--pc) 34%,#2a2224) 0%,color-mix(in oklab,var(--pc) 20%,#1a1416) 70%,color-mix(in oklab,var(--pc) 12%,#0f0b0c) 100%);box-shadow:inset 0 6px 18px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35);overflow:hidden}
 .felt canvas{position:absolute;inset:0;width:100%;height:100%}
+.felt .seal{position:absolute;top:8px;right:8px;display:none;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;background:linear-gradient(180deg,#f6d77d,#c8922e);color:#3a2306;font-weight:800;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6);pointer-events:none}
+.felt .seal svg{width:20px;height:20px}
+.tray.secret .felt .seal{display:inline-flex}
+.tray.secret .felt{box-shadow:inset 0 0 0 2px #e3b04b,inset 0 0 26px rgba(227,176,75,.4),inset 0 6px 18px rgba(0,0,0,.6)}
+.tray.secret{background:linear-gradient(160deg,#a07a32,#6b4a22 35%,#3a2213)}
+.log li.secret{box-shadow:inset 0 0 0 1.5px #e3b04b}
 .felt .banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-family:Cinzel,serif;font-weight:800;font-size:clamp(22px,4vw,34px);color:#ffe27a;text-shadow:0 2px 0 #5a3a00,0 0 18px rgba(255,210,90,.8);pointer-events:none;white-space:nowrap}
 .tray.crit .banner,.tray.fumble .banner{animation:ban 1.6s ease-out forwards}
 .tray.fumble .banner{color:#e9e2da;text-shadow:0 2px 0 #000}
@@ -92,7 +98,7 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .tray.fumble .felt{animation:shake .4s}
 @keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
 .tray .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:8px 4px 0;color:#f3e3d6;min-height:52px}
-.tray .what{display:flex;flex-direction:column;gap:3px;line-height:1.15;overflow-wrap:anywhere}
+.tray .what{display:flex;flex-direction:column;gap:3px;line-height:1.15;overflow-wrap:break-word}
 .tray .what .lbl{font-family:Cinzel,serif;font-weight:800;font-size:17px;color:#fbeee4;text-shadow:0 2px 0 rgba(0,0,0,.35)}
 .tray .what{flex:1 1 auto}
 .tray .what .fx{font-family:Cinzel,serif;font-weight:600;font-size:clamp(12px,calc(var(--tw,420px) * .034),16px);color:#e8c37a;text-shadow:0 1px 0 rgba(0,0,0,.4)}
@@ -714,13 +720,13 @@ function fitTrays(){
     const w = Math.min(byW, byH, 1100);
     if (w > best.w + .5) best = { w, c };
   }
-  const w = Math.floor(best.w);
+  const w = Math.floor(Math.min(W, Math.max(best.w, 250)));   // never smaller than readable: past this point the page scrolls instead
   box.classList.add('fit'); box.style.setProperty('--tw', w + 'px');
 }
 window.addEventListener('resize', () => fitTrays());
 function makeTray(id){
   const el = document.createElement('div'); el.className = 'tray';
-  el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="banner"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
+  el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Hidden</div><div class="banner"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
   const t = { id, el, cv: el.querySelector('canvas'), rolling: false, roll: null, w: 0, h: 0, lastClack: 0, color: '#888888', name: '', meshes: [], sim: null, scene: null };
   t.ctx = t.cv.getContext('2d');
   t.ro = new ResizeObserver(() => sizeTray(t)); t.ro.observe(el.querySelector('.felt'));
@@ -765,13 +771,13 @@ function build(t, roll){
   const all = flatDice(roll).filter(d => dieVerts(d.s)).slice(0, 30);
   const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.45, Math.min(1.2, Math.sqrt(area / (Math.max(1, all.length) * 11))));
   const specs = all.map(d => ({ ...d, sc }));
-  const col = okC(roll.color), ink = lum(col) > .6 ? '#1b1013' : '#fffaf2';
+  const col = okC(roll.color), gold = !!roll.secret, ink = lum(col) > .6 ? '#1b1013' : gold ? '#ffd46b' : '#fffaf2';
   t.sim = simulate(specs);
   t.meshes = specs.map((d, i) => {
     const tp = template(d.s), grp = new THREE.Group();
     const mat = new THREE.MeshStandardMaterial({ color: col, roughness: .35, metalness: .05, flatShading: true, transparent: true });
     const body = new THREE.Mesh(tp.geo, mat); body.castShadow = true; body.userData.own = true; grp.add(body);
-    if (tp.edges) { const e = new THREE.LineSegments(tp.edges, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: .22 })); e.userData.own = true; grp.add(e); }
+    if (tp.edges) { const e = new THREE.LineSegments(tp.edges, new THREE.LineBasicMaterial(gold ? { color: 0xf2c25a, transparent: true, opacity: .95 } : { color: 0x000000, transparent: true, opacity: .22 })); e.userData.own = true; grp.add(e); }
     labelDie(grp, d, t.sim.finalQ[i], ink);
     grp.scale.setScalar(d.sc); grp.userData = { drop: d.drop, mat };
     t.group.add(grp); return grp;
@@ -800,6 +806,7 @@ function paint(t){
 }
 function fadeDropped(t){ for (const m of t.meshes) if (m.userData.drop) m.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.userData = {}; o.userData.own = true; o.material.opacity = .28; } }); }
 function setFoot(t, roll, done){
+  t.el.classList.toggle('secret', !!roll.secret);
   const n = natTag(roll), m = modeTxt(roll.mode);
   const tags = `${m ? `<span class="tag m">${m}</span>` : ''}${roll.secret ? '<span class="tag h">Hidden</span>' : ''}${done && n === 'crit' ? '<span class="tag">Natural 20</span>' : done && n === 'fumble' ? '<span class="tag f">Natural 1</span>' : ''}`;
   t.el.querySelector('.what').innerHTML = `${roll.label ? `<span class="lbl">${esc(roll.label)}</span>` : ''}<span class="fx">${esc(roll.formula)}</span>${tags ? `<span class="tags">${tags}</span>` : ''}`;
@@ -810,7 +817,7 @@ function setFoot(t, roll, done){
 function showLatest(t){
   const roll = rolls.find(r => r.cid === t.id);
   if (t.rolling) return;
-  if (!roll) { t.roll = null; if (ready()) { ensureScene(t); clearDice(t); } t.el.querySelector('.what').innerHTML = '<span class="fx">No rolls yet</span>'; t.el.querySelector('.tot').textContent = ''; paint(t); return; }
+  if (!roll) { t.roll = null; if (ready()) { ensureScene(t); clearDice(t); } t.el.classList.remove('secret'); t.el.querySelector('.what').innerHTML = '<span class="fx">No rolls yet</span>'; t.el.querySelector('.tot').textContent = ''; paint(t); return; }
   t.roll = roll; setFoot(t, roll, true);
   if (ready()) { build(t, roll); applyFrame(t, t.sim.count - 1); fadeDropped(t); }
   paint(t);
@@ -831,7 +838,7 @@ function throwDice(roll){
 function startRoll(t, roll){
   if (!ready()) { paint(t); finish(t); return; }
   build(t, roll);
-  if (REDUCED) { applyFrame(t, t.sim.count - 1); finish(t); return; }
+  if (REDUCED || document.hidden) { applyFrame(t, t.sim.count - 1); finish(t); return; }
   t.rolling = true; t.start = performance.now(); t.ev = 0;
   startLoop();
 }
