@@ -539,11 +539,12 @@ function physShape(s, sc){
 const texCache = new Map(), PLANE = { g: null };
 function numMat(txt, ink, dim){
   const k = txt + ink + (dim ? 'd' : ''); if (texCache.has(k)) return texCache.get(k);
-  const cv = document.createElement('canvas'); cv.width = cv.height = 128; const g = cv.getContext('2d');
-  g.fillStyle = ink; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.font = `800 ${txt.length > 2 ? 54 : txt.length > 1 ? 72 : 92}px "Alegreya Sans", Arial, sans-serif`;
-  g.fillText(txt, 64, 68);
-  if (txt === '6' || txt === '9') g.fillRect(42, 112, 44, 8);
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256; const g = cv.getContext('2d');
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = `900 ${txt.length > 2 ? 120 : txt.length > 1 ? 160 : 210}px "Alegreya Sans", "Arial Black", Arial, sans-serif`;
+  g.lineJoin = 'round'; g.lineWidth = 14; g.strokeStyle = ink === '#1b1013' ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.55)';
+  g.strokeText(txt, 128, 136); g.fillStyle = ink; g.fillText(txt, 128, 136);
+  if (txt === '6' || txt === '9') { g.strokeRect(88, 226, 80, 14); g.fillRect(88, 226, 80, 14); }
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
   const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, opacity: dim ? .45 : 1, roughness: .55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
   texCache.set(k, m); return m;
@@ -571,7 +572,7 @@ function labelDie(mesh, d, q, ink){
     tp.V.forEach((v, i) => vals[i] = i === topV ? d.v : rest[ri++]);
     for (const f of tp.faces) for (const qv of f.idx) {
       const dir = vsub(tp.V[qv], f.c);
-      decal(mesh, String(vals[qv]), ink, f.c.map((x, a) => x + dir[a] * .55), f.n, dir, f.inr * 1.25);
+      decal(mesh, String(vals[qv]), ink, f.c.map((x, a) => x + dir[a] * .55), f.n, dir, f.inr * 1.5);
     }
     return;
   }
@@ -582,7 +583,7 @@ function labelDie(mesh, d, q, ink){
   tp.faces.forEach((f, i) => {
     const far = f.idx.reduce((b, qv) => vlen(vsub(tp.V[qv], f.c)) > vlen(vsub(tp.V[b], f.c)) ? qv : b, f.idx[0]);
     const txt = show(i === top ? d.v : rest[ri++]);
-    decal(mesh, txt, ink, f.c, f.n, i === top ? S : vsub(tp.V[far], f.c), f.inr * (d.s === 10 ? 1.45 : d.s === 20 ? 1.85 : d.s === 8 ? 1.75 : 1.6));
+    decal(mesh, txt, ink, f.c, f.n, i === top ? S : vsub(tp.V[far], f.c), f.inr * (d.s === 10 ? 1.75 : d.s === 20 ? 2.25 : d.s === 8 ? 2.1 : d.s === 6 ? 1.75 : 1.95));
   });
 }
 
@@ -683,7 +684,7 @@ function flatDice(roll){
 function build(t, roll){
   ensureScene(t); clearDice(t);
   const all = flatDice(roll).filter(d => dieVerts(d.s)).slice(0, 30);
-  const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.42, Math.min(1.05, Math.sqrt(area / (Math.max(1, all.length) * 13))));
+  const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.45, Math.min(1.2, Math.sqrt(area / (Math.max(1, all.length) * 11))));
   const specs = all.map(d => ({ ...d, sc }));
   const col = okC(roll.color), ink = lum(col) > .6 ? '#1b1013' : '#fffaf2';
   t.sim = simulate(specs);
