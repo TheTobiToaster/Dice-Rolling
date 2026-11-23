@@ -28,11 +28,13 @@ header h1{font-size:clamp(24px,3.6vw,34px);font-weight:800}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.22);font-weight:700}
 .dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
 .ghost{background:transparent;border:1.5px solid rgba(255,255,255,.6);border-radius:10px;padding:8px 14px;min-height:44px;color:#fbeee4}
-main{max-width:1400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px);display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);grid-template-areas:'panel table' 'panel hist';gap:clamp(16px,2.4vw,28px);align-items:start}
+main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px);display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);grid-template-areas:'panel table' 'panel hist';gap:clamp(16px,2.4vw,28px);align-items:start}
 .panel{grid-area:panel;align-self:start}.table{grid-area:table}.histsec{grid-area:hist}
 .panel{position:sticky;top:16px;background:radial-gradient(120% 90% at 50% 0%,#7a1729 0%,#4a0c18 75%);color:#fbeee4;border-radius:20px;padding:18px;box-shadow:inset 0 0 0 5px var(--red2),0 14px 30px -18px rgba(0,0,0,.6)}
 .panel h2{font-size:22px;margin-bottom:12px}
 @media(max-width:900px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:'table' 'panel' 'hist'}.panel{position:static}}
+@media(min-width:1440px){main{grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(280px,360px);grid-template-areas:'panel table hist'}
+ .histsec{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding-right:4px}}
 .dice{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .die{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:6px 2px 4px;display:grid;justify-items:center;gap:0;min-height:72px;color:#fbeee4}
 .die:hover{background:rgba(255,255,255,.12)}.die:active{transform:scale(.95)}
@@ -67,12 +69,14 @@ main{max-width:1400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .invite b{flex:0 0 auto}
 .invite input{flex:1 1 200px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:15px}
 .btn{min-height:42px;padding:0 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:800}
-.trays{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.trays{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:18px}
+.tray:only-child{max-width:1100px}
+@media(min-width:1440px){.trays{grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}}
 @media(max-width:600px){.trays{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
 @media(max-width:360px){.trays{grid-template-columns:minmax(0,1fr)}}
 .tray{background:linear-gradient(160deg,#7a4b2c,var(--wood) 40%,var(--wood2));border-radius:18px;padding:9px;box-shadow:0 10px 22px -12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);transition:box-shadow .3s}
 .tray.mine{outline:3px solid var(--brass);outline-offset:2px}
-.tray .top{display:flex;align-items:center;gap:8px;color:#fbeee4;font-weight:800;padding:0 4px 7px;font-size:15px}
+.tray .top{display:flex;align-items:center;gap:8px;color:#fbeee4;font-weight:800;padding:0 4px 8px;font-size:clamp(15px,1.1vw,18px)}
 .tray .top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;background:var(--brass);color:#2a1408;white-space:nowrap}
 .tag.h{background:#14080b;color:#f1e6dc}.tag.dm{background:var(--red);color:#fff}.tag.f{background:#e9e2da;color:#22161a}
@@ -91,7 +95,7 @@ main{max-width:1400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .tray .what .fx{font-family:Cinzel,serif;font-weight:600;font-size:15px;color:#e8c37a;text-shadow:0 1px 0 rgba(0,0,0,.4)}
 .tray .what .tags{display:flex;gap:4px;flex-wrap:wrap}
 .tag.m{background:rgba(255,255,255,.16);color:#fbeee4}
-.tray .tot{font-family:Cinzel,serif;font-weight:800;font-size:36px;line-height:1;color:var(--brass);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tray .tot{font-family:Cinzel,serif;font-weight:800;font-size:clamp(34px,2.6vw,48px);line-height:1;color:var(--brass);text-shadow:0 2px 0 rgba(0,0,0,.4)}
 .tray .tot.wait{font-size:18px;color:#e6cfc6;letter-spacing:.02em}
 .tray .tot.pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
@@ -405,26 +409,44 @@ function sendRoster(){
 }
 
 /* ---------- connection: players join ---------- */
+let tries = 0, openT = null, sigT = null;
+const BLOCK_HINT = ' This is usually a VPN, a strict network (school, work), or a browser privacy setting or extension blocking WebRTC. Try another browser, or switch off the VPN or privacy blocker for this site.';
 function startJoining(){
   if (typeof Peer === 'undefined') { setStatus("Couldn't load the connection library. Check your internet and reload."); return; }
-  setStatus('Finding the table…', 'wait');
+  setStatus('Contacting the connection service…', 'wait');
   $('#invite').hidden = false; $('#inviteUrl').value = inviteLink();
   peer = new Peer(PEER_OPTS);
-  peer.on('open', () => connectToHost());
+  clearTimeout(sigT);
+  sigT = setTimeout(() => { if (!peer.open) setStatus("Can't reach the free connection service that links players to the DM." + BLOCK_HINT, 'wait'); }, 12000);
+  peer.on('open', () => { clearTimeout(sigT); connectToHost(); });
   peer.on('error', err => {
-    if (err.type === 'peer-unavailable') { setStatus("The DM's table isn't open right now. Waiting for it…", 'wait'); retry(5000); }
+    if (err.type === 'peer-unavailable') { setStatus("Can't find the DM's table. Check that the DM's tab is open and that you used the latest invite link. Retrying…", 'wait'); retry(5000); }
     else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) { setStatus('Connection trouble. Retrying…', 'wait'); retry(5000); }
+    else if (err.type === 'browser-incompatible') setStatus("This browser can't make the direct connection the table needs." + BLOCK_HINT);
   });
   peer.on('disconnected', () => { setTimeout(() => { try { peer.reconnect(); } catch {} }, 2000); });
 }
-function retry(ms){ clearTimeout(retryT); retryT = setTimeout(() => { if (peer && !peer.disconnected && !(conn && conn.open)) connectToHost(); }, ms); }
+function retry(ms){ clearTimeout(retryT); retryT = setTimeout(() => { if (peer && peer.open && !(conn && conn.open)) connectToHost(); }, ms); }
 function connectToHost(){
-  try { conn && conn.close(); } catch {}
-  conn = peer.connect(code, { reliable: true });
-  conn.on('open', () => { setStatus('Connected to the table.', 'on'); conn.send({ type: 'hello', name: me.name, color: me.color }); });
-  conn.on('data', onPlayerData);
-  conn.on('close', () => { setStatus('Lost the table. Reconnecting…', 'wait'); retry(3000); });
-  conn.on('error', () => retry(3000));
+  const old = conn; conn = null; try { old && old.close(); } catch {}
+  const c = peer.connect(code, { reliable: true }); conn = c; tries++;
+  if (tries <= 3) setStatus(tries > 1 ? `Connecting to the DM's table… (try ${tries})` : "Connecting to the DM's table…", 'wait');
+  clearTimeout(openT);
+  openT = setTimeout(() => {      // the connection never opened: try again, and explain after a few goes
+    if (c !== conn || c.open) return;
+    if (tries >= 3) setStatus("Can't connect to the DM's table. First check that the DM's tab is open, says \"Table open\", and that you're using the latest invite link. If it is, something is blocking the connection." + BLOCK_HINT + ' Still retrying…', 'wait');
+    connectToHost();
+  }, 10000);
+  try {
+    const pc = c.peerConnection;
+    pc && pc.addEventListener('iceconnectionstatechange', () => {
+      if (c === conn && pc.iceConnectionState === 'failed') { setStatus("Found the DM's table, but your browsers can't connect directly." + BLOCK_HINT + ' Retrying…', 'wait'); retry(4000); }
+    });
+  } catch {}
+  c.on('open', () => { if (c !== conn) return; clearTimeout(openT); tries = 0; setStatus('Connected to the table.', 'on'); c.send({ type: 'hello', name: me.name, color: me.color }); });
+  c.on('data', d => { if (c === conn) onPlayerData(d); });
+  c.on('close', () => { if (c !== conn) return; setStatus('Lost the table. Reconnecting…', 'wait'); retry(3000); });
+  c.on('error', () => { if (c === conn) retry(3000); });
 }
 function onPlayerData(d){
   if (!d || typeof d !== 'object') return;
