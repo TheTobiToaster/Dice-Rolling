@@ -33,7 +33,7 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .panel{position:sticky;top:16px;background:radial-gradient(120% 90% at 50% 0%,#7a1729 0%,#4a0c18 75%);color:#fbeee4;border-radius:20px;padding:18px;box-shadow:inset 0 0 0 5px var(--red2),0 14px 30px -18px rgba(0,0,0,.6)}
 .panel h2{font-size:22px;margin-bottom:12px}
 @media(max-width:900px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:'table' 'panel' 'hist'}.panel{position:static}}
-@media(min-width:1760px){main{grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(280px,360px);grid-template-areas:'panel table hist'}
+@media(min-width:2000px){main{grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(280px,360px);grid-template-areas:'panel table hist'}
  .histsec{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding-right:4px}}
 .dice{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .die{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:6px 2px 4px;display:grid;justify-items:center;gap:0;min-height:72px;color:#fbeee4}
@@ -71,7 +71,7 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .btn{min-height:42px;padding:0 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:800}
 .trays{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:18px;justify-content:center}
 .tray:only-child{max-width:1100px}
-.trays.fit{display:flex;flex-wrap:wrap;justify-content:center}
+.trays.fit{display:flex;flex-wrap:wrap;justify-content:center;margin-inline:auto}
 .trays.fit .tray{width:var(--tw);flex:none}
 
 @media(max-width:600px){.trays{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
@@ -706,22 +706,24 @@ function renderTrays(list){
   fitTrays(); requestAnimationFrame(fitTrays);
 }
 /* Size the trays so every seat fits on screen at once (wider than 900px); phones scroll as normal. */
+/* Size the trays so every seat fits on screen at once (wider than 900px); phones scroll as normal.
+   The arrangement is fixed by the number of seats so trays never jump around: 3 → one row, 4 → 2+2,
+   5 → 3+2, 6 → 3+3, 7 → 4+3, 8 → 4+4. Only the tray size changes with the window. */
+const LAYOUT = { 1: 1, 2: 2, 3: 3, 4: 2, 5: 3, 6: 3, 7: 4, 8: 4 };
 function fitTrays(){
   const box = $('#trays'), list = [...box.querySelectorAll('.tray')], n = list.length;
-  if (!n || window.innerWidth <= 900) { box.classList.remove('fit'); box.style.removeProperty('--tw'); return; }
+  if (!n || window.innerWidth <= 900) { box.classList.remove('fit'); box.style.removeProperty('--tw'); box.style.maxWidth = ''; return; }
+  box.style.maxWidth = '';
   const gap = 18, W = box.clientWidth, top = box.getBoundingClientRect().top + window.scrollY;
   const H = Math.max(260, window.innerHeight - top - 20);
   const felt = list[0].querySelector('.felt'), chrome = Math.max(90, list[0].offsetHeight - felt.offsetHeight), pad = list[0].offsetWidth - felt.offsetWidth || 18;
-  let best = { w: 0, c: 1 };
-  for (let c = 1; c <= n; c++) {
-    const rows = Math.ceil(n / c);
-    const byW = (W - gap * (c - 1)) / c;
-    const byH = ((H - gap * (rows - 1)) / rows - chrome) * 1.5 + pad;
-    const w = Math.min(byW, byH, 1100);
-    if (w > best.w + .5) best = { w, c };
-  }
-  const w = Math.floor(Math.min(W, Math.max(best.w, 250)));   // never smaller than readable: past this point the page scrolls instead
+  let c = LAYOUT[n] || Math.ceil(n / 2);
+  while (c > 1 && (W - gap * (c - 1)) / c < 200) c--;          // a very narrow window: fewer per row, page scrolls
+  const rows = Math.ceil(n / c);
+  const byW = (W - gap * (c - 1)) / c, byH = ((H - gap * (rows - 1)) / rows - chrome) * 1.5 + pad;
+  const w = Math.floor(Math.min(byW, Math.max(200, Math.min(byH, 1100))));
   box.classList.add('fit'); box.style.setProperty('--tw', w + 'px');
+  box.style.maxWidth = (c * w + gap * (c - 1)) + 'px';         // exactly c trays per row; the last row centres itself
 }
 window.addEventListener('resize', () => fitTrays());
 function makeTray(id){
@@ -842,9 +844,16 @@ function startRoll(t, roll){
   t.rolling = true; t.start = performance.now(); t.ev = 0;
   startLoop();
 }
-let looping = false;
-function startLoop(){ if (looping) return; looping = true; requestAnimationFrame(tick); }
+let looping = false, lastTick = 0;
+function startLoop(){ if (looping) return; looping = true; lastTick = performance.now(); requestAnimationFrame(tick); }
+/* Backup clock: some browsers pause animation frames in tabs or windows that aren't on screen without
+   marking them hidden. If frames stop arriving, finish the rolls on a plain timer instead. */
+setInterval(() => { if (looping && performance.now() - lastTick > 300) { if (!stepAll(performance.now())) looping = false; } }, 250);
 function tick(now){
+  lastTick = performance.now();
+  if (stepAll(now)) requestAnimationFrame(tick); else looping = false;
+}
+function stepAll(now){
   let any = false;
   for (const t of trays.values()) {
     if (!t.rolling || !t.sim) continue; any = true;
@@ -854,7 +863,7 @@ function tick(now){
     paint(t);
     if (f >= t.sim.count - 1) finish(t);
   }
-  if (any) requestAnimationFrame(tick); else looping = false;
+  return any;
 }
 function finish(t){
   const roll = t.roll; t.rolling = false;
