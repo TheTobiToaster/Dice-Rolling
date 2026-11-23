@@ -3,88 +3,119 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Party Dice Table</title>
+<title>Party Dice Trays</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Alegreya+Sans:wght@400;500;700;800&display=swap">
 <style>
-
-/* VOICE: a game-night table — warm, a little theatrical, fast to use mid-session.
-   IDEA: a dice tray on the tavern table; the log is the party's shared ledger.
-   PICTURE: the tray itself — drawn polyhedral dice you tap, the latest roll landing big in the roller's colour.
-   COLOUR and TYPE: dragon red field, bone paper, brass for the result; Cinzel for titles, Alegreya Sans for text.
-   LAYOUT: tray and log side by side when wide; stacked (identity, tray, log) on phones. */
+/* VOICE: game night at the tavern — theatrical, a bit of suspense, still quick to use.
+   IDEA: every seat at the table has its own wooden dice tray; rolls tumble across the felt before the number lands.
+   PICTURE: the row of trays, dice in each player's colour bouncing, settling, then the total revealed.
+   COLOUR and TYPE: dragon red and oxblood felt, walnut frames, brass for results; Cinzel titles, Alegreya Sans text.
+   LAYOUT: roll controls on the left, trays grid on the right with the history under it; on phones trays first, then controls. */
 :root{color-scheme:light dark;
- --bg:light-dark(#f4efe6,#160d0f);--ink:light-dark(#22161a,#f1e6dc);--mute:light-dark(#6f5f61,#b39f9c);
- --red:light-dark(#a3122a,#8f1026);--red2:light-dark(#7d0d20,#5c0a18);--card:light-dark(#fffdf9,#231518);
- --line:light-dark(#e2d7c9,#3a2528);--brass:#e3b04b;--tray:light-dark(#5a0f1d,#2a0b12)}
+ --bg:light-dark(#f2ece2,#140b0d);--ink:light-dark(#22161a,#f1e6dc);--mute:light-dark(#6f5f61,#b39f9c);
+ --red:light-dark(#a3122a,#8f1026);--red2:light-dark(#7d0d20,#5c0a18);--card:light-dark(#fffdf9,#221417);
+ --line:light-dark(#e0d4c4,#3a2528);--brass:#e3b04b;--wood:#5a3720;--wood2:#3a2213}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Alegreya Sans",system-ui,sans-serif;overflow-x:clip}
 h1,h2{font-family:Cinzel,Georgia,serif;margin:0;line-height:1.05;text-wrap:balance}
-button,input{font:inherit;color:inherit}
-button{cursor:pointer}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
 :focus-visible{outline:3px solid var(--brass);outline-offset:2px}
-header{background:var(--red);color:#fbeee4;padding:18px max(5vw,16px);display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
-header h1{font-size:clamp(26px,4vw,36px);font-weight:800}
-.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header{background:var(--red);color:#fbeee4;padding:16px max(4vw,16px);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
+header h1{font-size:clamp(24px,3.6vw,34px);font-weight:800}
+.who{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.22);font-weight:700}
 .dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
 .ghost{background:transparent;border:1.5px solid rgba(255,255,255,.6);border-radius:10px;padding:8px 14px;min-height:44px;color:#fbeee4}
-main{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,36px) max(4vw,14px);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(18px,3vw,32px);align-items:start}
-@media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}}
-.tray{background:radial-gradient(120% 90% at 50% 0%,#7a1729 0%,var(--tray) 70%);color:#fbeee4;border-radius:22px;padding:clamp(16px,2.6vw,26px);box-shadow:inset 0 0 0 6px var(--red2),inset 0 10px 30px rgba(0,0,0,.45),0 14px 30px -18px rgba(0,0,0,.6)}
-.result{min-height:150px;display:grid;place-items:center;text-align:center;padding:8px 0 16px;border-bottom:1px dashed rgba(255,255,255,.2);margin-bottom:16px}
-.result .big{font-family:Cinzel,serif;font-weight:800;font-size:clamp(64px,12vw,104px);line-height:1;color:var(--brass);text-shadow:0 3px 0 rgba(0,0,0,.35)}
-.result .by{font-weight:700;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
-.result .sub{color:#e6cfc6;font-size:15px}
-.result.crit .big{color:#ffe27a}.result.fumble .big{color:#c9b8b8}
-.dice{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-@media(max-width:520px){.dice{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.die{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:8px 4px 6px;display:grid;justify-items:center;gap:2px;min-height:84px;color:#fbeee4;transition:transform .12s}
+main{max-width:1400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px);display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);grid-template-areas:'panel table' 'panel hist';gap:clamp(16px,2.4vw,28px);align-items:start}
+.panel{grid-area:panel;align-self:start}.table{grid-area:table}.histsec{grid-area:hist}
+.panel{position:sticky;top:16px;background:radial-gradient(120% 90% at 50% 0%,#7a1729 0%,#4a0c18 75%);color:#fbeee4;border-radius:20px;padding:18px;box-shadow:inset 0 0 0 5px var(--red2),0 14px 30px -18px rgba(0,0,0,.6)}
+.panel h2{font-size:22px;margin-bottom:12px}
+@media(max-width:900px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:'table' 'panel' 'hist'}.panel{position:static}}
+.dice{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.die{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:6px 2px 4px;display:grid;justify-items:center;gap:0;min-height:72px;color:#fbeee4}
 .die:hover{background:rgba(255,255,255,.12)}.die:active{transform:scale(.95)}
-.die svg{width:44px;height:44px}
-.die b{font-size:15px}
-.die .n{position:absolute;top:-7px;right:-5px;background:var(--brass);color:#2a1408;font-weight:800;font-size:14px;border-radius:999px;min-width:24px;height:24px;display:grid;place-items:center;padding:0 6px}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
-.formula{flex:1 1 200px;font-family:Cinzel,serif;font-weight:600;font-size:20px;min-height:30px}
+.die svg{width:38px;height:38px}.die b{font-size:14px}
+.die .n{position:absolute;top:-7px;right:-5px;background:var(--brass);color:#2a1408;font-weight:800;font-size:13px;border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;padding:0 5px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.formula{flex:1 1 140px;font-family:Cinzel,serif;font-weight:600;font-size:18px}
 .step{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.25);border-radius:12px;overflow:hidden}
 .step button{background:transparent;border:0;width:44px;height:44px;font-size:22px;color:#fbeee4}
-.step span{min-width:58px;text-align:center;font-weight:800}
-.seg{display:inline-flex;border:1px solid rgba(255,255,255,.25);border-radius:12px;overflow:hidden}
-.seg button{background:transparent;border:0;padding:0 12px;height:44px;color:#fbeee4;font-weight:700}
+.step span{min-width:50px;text-align:center;font-weight:800}
+.seg{display:flex;width:100%;border:1px solid rgba(255,255,255,.25);border-radius:12px;overflow:hidden}
+.seg button{flex:1;background:transparent;border:0;padding:0 6px;height:44px;color:#fbeee4;font-weight:700;font-size:15px}
 .seg button[aria-pressed=true]{background:#fbeee4;color:var(--red2)}
-.label{flex:1 1 180px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);padding:0 12px;font-size:16px;color:#fbeee4}
-.label::placeholder{color:#cdb3ad}
-.roll{flex:1 1 160px;height:56px;border:0;border-radius:14px;background:var(--brass);color:#2a1408;font-family:Cinzel,serif;font-weight:800;font-size:22px;box-shadow:0 4px 0 #9c7426}
+.field{flex:1 1 160px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);padding:0 12px;font-size:16px;color:#fbeee4}
+.field::placeholder{color:#cdb3ad}
+.roll{flex:1 1 140px;height:56px;border:0;border-radius:14px;background:var(--brass);color:#2a1408;font-family:Cinzel,serif;font-weight:800;font-size:22px;box-shadow:0 4px 0 #9c7426}
 .roll:disabled{opacity:.45;cursor:not-allowed}
-.clear{height:56px;padding:0 16px;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fbeee4}
-.quick{font-size:14px;color:#e6cfc6;margin:14px 0 0}
-.side h2{font-size:28px;margin-bottom:6px}
-.party{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px;font-size:15px}
-.party .chip{background:var(--card);border:1px solid var(--line)}
-.party .dot{box-shadow:none}
-.status{font-size:14px;color:var(--mute);margin:0 0 10px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sec{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fbeee4}
+.hide{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fbeee4;font-weight:700;text-align:left}
+.hide .sw2{width:38px;height:22px;border-radius:999px;background:rgba(255,255,255,.25);position:relative;flex:none}
+.hide .sw2::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fbeee4;transition:left .15s}
+.hide[aria-pressed=true]{background:#14080b;border-color:var(--brass)}
+.hide[aria-pressed=true] .sw2{background:var(--brass)}.hide[aria-pressed=true] .sw2::after{left:19px}
+.err{color:#ffd2c8;font-size:14px;min-height:20px;margin-top:6px}
+.quick{font-size:13px;color:#e6cfc6;margin:10px 0 0}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bar h2{font-size:28px}
+.status{font-size:14px;color:var(--mute);margin:0}
+.conn{display:inline-block;width:10px;height:10px;border-radius:50%;background:#999;margin-right:6px;vertical-align:middle}
+.conn.on{background:#2f8f4e}.conn.wait{background:#e3b04b}
+.invite{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.invite b{flex:0 0 auto}
+.invite input{flex:1 1 200px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:15px}
+.btn{min-height:42px;padding:0 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:800}
+.trays{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+@media(max-width:600px){.trays{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media(max-width:360px){.trays{grid-template-columns:minmax(0,1fr)}}
+.tray{background:linear-gradient(160deg,#7a4b2c,var(--wood) 40%,var(--wood2));border-radius:18px;padding:9px;box-shadow:0 10px 22px -12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);transition:box-shadow .3s}
+.tray.mine{outline:3px solid var(--brass);outline-offset:2px}
+.tray .top{display:flex;align-items:center;gap:8px;color:#fbeee4;font-weight:800;padding:0 4px 7px;font-size:15px}
+.tray .top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;background:var(--brass);color:#2a1408;white-space:nowrap}
+.tag.h{background:#14080b;color:#f1e6dc}.tag.dm{background:var(--red);color:#fff}.tag.f{background:#e9e2da;color:#22161a}
+.felt{position:relative;aspect-ratio:3/2;border-radius:12px;background:radial-gradient(120% 100% at 50% 20%,#6b1a28 0%,#3e0c16 70%,#2a070e 100%);box-shadow:inset 0 6px 18px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35);overflow:hidden}
+.felt canvas{position:absolute;inset:0;width:100%;height:100%}
+.felt .banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-family:Cinzel,serif;font-weight:800;font-size:clamp(22px,4vw,34px);color:#ffe27a;text-shadow:0 2px 0 #5a3a00,0 0 18px rgba(255,210,90,.8);pointer-events:none;white-space:nowrap}
+.tray.crit .banner,.tray.fumble .banner{animation:ban 1.6s ease-out forwards}
+.tray.fumble .banner{color:#e9e2da;text-shadow:0 2px 0 #000}
+@keyframes ban{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.tray.crit{box-shadow:0 0 0 3px #ffd15c,0 0 28px rgba(255,200,80,.7)}
+.tray.fumble .felt{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.tray .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:8px 4px 0;color:#f3e3d6;min-height:52px}
+.tray .what{display:flex;flex-direction:column;gap:3px;line-height:1.15;overflow-wrap:anywhere}
+.tray .what .lbl{font-family:Cinzel,serif;font-weight:800;font-size:17px;color:#fbeee4;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.tray .what .fx{font-family:Cinzel,serif;font-weight:600;font-size:15px;color:#e8c37a;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.tray .what .tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag.m{background:rgba(255,255,255,.16);color:#fbeee4}
+.tray .tot{font-family:Cinzel,serif;font-weight:800;font-size:36px;line-height:1;color:var(--brass);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tray .tot.wait{font-size:18px;color:#e6cfc6;letter-spacing:.02em}
+.tray .tot.pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
+.alone{grid-column:1/-1;padding:24px;text-align:center;color:var(--mute);border:2px dashed var(--line);border-radius:16px}
+details.hist{margin-top:0}
+details.hist summary{cursor:pointer;font-family:Cinzel,serif;font-weight:800;font-size:22px;padding:6px 0;list-style-position:inside}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
 .tools button{min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
 .tools button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
-.log{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.log li{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--c);border-radius:14px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;align-items:center}
-.log .nm{font-weight:800;color:var(--c);filter:saturate(1.1) brightness(.9)}
-:root[data-theme=dark] .log .nm{filter:brightness(1.25)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .log .nm{filter:brightness(1.25)}}
+.log{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.log li{background:var(--card);border:1px solid var(--line);border-left:7px solid var(--c);border-radius:12px;padding:8px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center}
+.log li.secret{background:repeating-linear-gradient(135deg,var(--card) 0 10px,color-mix(in srgb,var(--card) 88%,var(--ink)) 10px 20px)}
+.log .nm{font-weight:800}
 .log .meta{font-size:14px;color:var(--mute)}
-.log .tot{grid-row:1/span 3;grid-column:2;font-family:Cinzel,serif;font-weight:800;font-size:34px;text-align:right}
-.log .bits{display:flex;flex-wrap:wrap;gap:4px;font-size:14px}
+.log .t{grid-row:1/span 3;grid-column:2;font-family:Cinzel,serif;font-weight:800;font-size:28px}
+.log .bits{display:flex;flex-wrap:wrap;gap:4px;font-size:13px}
 .pip{border:1px solid var(--line);border-radius:6px;padding:0 6px;white-space:nowrap}
 .pip.drop{opacity:.45;text-decoration:line-through}.pip.max{border-color:#2f8f4e;color:#2f8f4e;font-weight:800}.pip.one{border-color:var(--red);color:var(--red);font-weight:800}
-.tag{font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;background:var(--brass);color:#2a1408;white-space:nowrap}
-.tag.f{background:var(--ink);color:var(--bg)}
-.empty{padding:28px;text-align:center;color:var(--mute);border:2px dashed var(--line);border-radius:14px}
+.empty{display:block!important;padding:20px;text-align:center;color:var(--mute);border:2px dashed var(--line)!important}
 .modal{position:fixed;inset:0;background:rgba(20,6,10,.72);display:grid;place-items:center;padding:16px;z-index:5}
 .modal[hidden]{display:none}
-.sheet{background:var(--card);color:var(--ink);border-radius:20px;padding:clamp(20px,4vw,32px);width:min(460px,100%);box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.sheet{background:var(--card);color:var(--ink);border-radius:20px;padding:clamp(20px,4vw,30px);width:min(460px,100%);max-height:100%;overflow:auto;box-shadow:0 30px 60px rgba(0,0,0,.4)}
 .sheet h2{font-size:30px;margin-bottom:6px}
-.sheet p{margin:0 0 16px;color:var(--mute)}
+.sheet p{margin:0 0 14px;color:var(--mute)}
 .sheet label{display:block;font-weight:700;margin:12px 0 6px}
 .sheet input[type=text]{width:100%;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);padding:0 14px;font-size:17px}
 .sw{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
@@ -92,45 +123,27 @@ main{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,36px) max(4vw,14px);d
 .sw button[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--card)}
 .custom{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:15px;color:var(--mute)}
 .custom input{width:52px;height:40px;border:0;background:none;padding:0}
-.go{margin-top:20px;width:100%;height:54px;border:0;border-radius:14px;background:var(--red);color:#fff;font-family:Cinzel,serif;font-weight:800;font-size:20px}
-.go:disabled{opacity:.5}
-.err{color:var(--red);font-size:14px;min-height:20px;margin-top:8px}
-.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.roles button{min-height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-weight:800;font-size:17px}
-.roles button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.hide{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fbeee4;font-weight:700}
-.hide .sw2{width:38px;height:22px;border-radius:999px;background:rgba(255,255,255,.25);position:relative;flex:none}
-.hide .sw2::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fbeee4;transition:left .15s}
-.hide[aria-pressed=true]{background:#14080b;border-color:var(--brass)}
-.hide[aria-pressed=true] .sw2{background:var(--brass)}.hide[aria-pressed=true] .sw2::after{left:19px}
-.log li.secret{background:repeating-linear-gradient(135deg,var(--card) 0 10px,color-mix(in srgb,var(--card) 88%,var(--ink)) 10px 20px)}
-.tag.h{background:#14080b;color:#f1e6dc}.tag.dm{background:var(--red);color:#fff}
-.spin{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
-@keyframes pop{0%{transform:scale(.4) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
-@media(prefers-reduced-motion:reduce){.spin{animation:none}.die{transition:none}}
-
-.invite{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
-.invite b{display:block;margin-bottom:6px}
-.invite .ln{display:flex;gap:8px;flex-wrap:wrap}
-.invite input{flex:1 1 200px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:15px}
-.invite button,.btn2{min-height:44px;padding:0 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:800}
+.go{margin-top:18px;width:100%;height:54px;border:0;border-radius:14px;background:var(--red);color:#fff;font-family:Cinzel,serif;font-weight:800;font-size:20px}
+.sheet .err{color:var(--red)}
 .or{display:flex;align-items:center;gap:10px;color:var(--mute);margin:18px 0 4px;font-size:14px}.or::before,.or::after{content:"";flex:1;border-top:1px solid var(--line)}
 .joinrow{display:flex;gap:8px}.joinrow input{flex:1}
-.conn{display:inline-block;width:10px;height:10px;border-radius:50%;background:#999;margin-right:6px;vertical-align:middle}
-.conn.on{background:#2f8f4e}.conn.wait{background:#e3b04b}
+@media(max-width:600px){.tray .tot{font-size:28px}.tray .what .fx{font-size:13px}.tray .what .lbl{font-size:15px}.tray .foot{gap:6px}}
+@media(prefers-reduced-motion:reduce){.tray .tot.pop,.tray.fumble .felt{animation:none}.hide .sw2::after{transition:none}}
 </style>
 </head>
 <body>
 <header>
-  <h1>Party Dice Table</h1>
-  <div class="who"><span class="chip" id="meChip"><span>Not seated</span></span><button class="ghost" id="editMe" type="button">Change name or colour</button></div>
+  <h1>Party Dice Trays</h1>
+  <div class="who">
+    <span class="chip" id="meChip"><span>Not seated</span></span>
+    <button class="ghost" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
+    <button class="ghost" id="editMe" type="button">Change name or colour</button>
+  </div>
 </header>
 
 <main>
-  <section class="tray" aria-label="Dice tray">
-    <div class="result" id="result" aria-live="polite">
-      <div><div class="big">d20</div><div class="sub">Tap dice to build a roll, then hit Roll.</div></div>
-    </div>
+  <section class="panel" aria-label="Your roll">
+    <h2>Your roll</h2>
     <div class="dice" id="dice"></div>
     <div class="row">
       <div class="formula" id="formula">No dice yet</div>
@@ -142,52 +155,61 @@ main{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,36px) max(4vw,14px);d
         <button type="button" data-mode="adv" aria-pressed="false">Advantage</button>
         <button type="button" data-mode="dis" aria-pressed="false">Disadvantage</button>
       </div>
-      <input class="label" id="label" maxlength="40" placeholder="What's it for? e.g. Stealth">
     </div>
+    <div class="row"><input class="field" id="label" maxlength="40" placeholder="What's it for? e.g. Stealth"></div>
     <div class="row">
       <button class="roll" id="rollBtn" type="button" disabled>Roll</button>
-      <button class="clear" id="clearPool" type="button">Clear dice</button>
+      <button class="sec" id="clearPool" type="button" style="height:56px">Clear</button>
     </div>
     <div class="row"><button type="button" class="hide" id="hideBtn" aria-pressed="false"><span class="sw2"></span><span id="hideTxt">Hidden roll: only me and the DM see it</span></button></div>
     <form class="row" id="typed" autocomplete="off">
-      <input class="label" id="notation" maxlength="60" placeholder="Or type a roll: 4d6d1, 2d20kh1+5" aria-label="Type a roll in dice notation">
-      <button class="clear" type="submit" style="height:44px">Roll it</button>
-      <button class="clear" type="button" id="stats" style="height:44px">Ability score (4d6d1)</button>
+      <input class="field" id="notation" maxlength="60" placeholder="Type a roll: 4d6d1, 2d20kh1+5" aria-label="Type a roll in dice notation">
+      <button class="sec" type="submit">Roll it</button>
     </form>
-    <div class="err" id="notErr" style="color:#ffd2c8"></div>
-    <p class="quick">Tap a die to add one; right-click or long-press to remove one. Advantage and disadvantage apply to d20s. Every roll is made by the DM's table, so nobody can fudge their dice.</p>
+    <div class="row"><button class="sec" type="button" id="stats">Ability score (4d6d1)</button></div>
+    <div class="err" id="notErr"></div>
+    <p class="quick">Tap a die to add one; right-click or long-press to remove one. Every roll is made by the DM's table, so nobody can fudge their dice.</p>
   </section>
 
-  <section class="side" aria-label="Party rolls">
-    <h2>Party rolls</h2>
-    <p class="status" id="status"><span class="conn" id="connDot"></span><span id="statusTxt">Not at a table yet.</span></p>
+  <section class="table" aria-label="The table">
+    <div class="bar">
+      <h2>The table</h2>
+      <p class="status"><span class="conn" id="connDot"></span><span id="statusTxt">Not at a table yet.</span></p>
+    </div>
     <div class="invite" id="invite" hidden>
-      <b>Invite link: send this to your players</b>
-      <div class="ln"><input id="inviteUrl" readonly aria-label="Invite link"><button type="button" id="copyBtn">Copy</button></div>
+      <b>Invite link</b>
+      <input id="inviteUrl" readonly aria-label="Invite link">
+      <button type="button" class="btn" id="copyBtn">Copy</button>
     </div>
-    <div class="party" id="party"></div>
-    <div class="tools">
-      <button type="button" id="onlyMine" aria-pressed="false">Only my rolls</button>
-      <button type="button" id="wipe" hidden>Clear the log</button>
-    </div>
-    <ol class="log" id="log"></ol>
+    <div class="trays" id="trays"><div class="alone">Trays appear here as people sit down.</div></div>
+
   </section>
+
+  <section class="histsec" aria-label="Roll history">
+    <details class="hist" open>
+      <summary>Roll history</summary>
+      <div class="tools">
+        <button type="button" id="onlyMine" aria-pressed="false">Only my rolls</button>
+        <button type="button" id="wipe" hidden>Clear the log</button>
+      </div>
+      <ol class="log" id="log"></ol>
+    </details>
 </main>
 
 <div class="modal" id="modal" hidden>
   <form class="sheet" id="who">
     <h2 id="whoTitle">Take a seat</h2>
-    <p id="whoSub">Your name and colour mark your rolls for everyone at the table.</p>
+    <p id="whoSub">Your name and colour mark your tray and dice.</p>
     <label for="nameIn">Name</label>
     <input type="text" id="nameIn" maxlength="24" autocomplete="nickname" placeholder="e.g. Ephialtes" required>
-    <label>Colour</label>
+    <label>Dice colour</label>
     <div class="sw" id="swatches"></div>
     <div class="custom"><input type="color" id="customC" aria-label="Pick any colour" value="#3b82f6"><span>…or pick any colour</span></div>
     <div class="err" id="whoErr"></div>
     <button class="go" type="submit" id="goBtn">Sit down</button>
     <div id="joinBox" hidden>
       <div class="or">or join a friend's table</div>
-      <div class="joinrow"><input type="text" id="joinIn" placeholder="Paste their invite link" aria-label="Invite link"><button class="btn2" type="button" id="joinBtn">Join</button></div>
+      <div class="joinrow"><input type="text" id="joinIn" placeholder="Paste their invite link" aria-label="Invite link"><button class="btn" type="button" id="joinBtn">Join</button></div>
     </div>
   </form>
 </div>
@@ -197,17 +219,18 @@ main{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,36px) max(4vw,14px);d
 {
 const $ = s => document.querySelector(s);
 const SIDES = [4,6,8,10,12,20,100];
-const COLOURS = ['#d62839','#f08a24','#e9c46a','#2a9d8f','#2f8f4e','#3a86ff','#4361ee','#8338ec','#c2185b','#ff70a6','#6d4c41','#607d8b'];
+const COLOURS = ['#d62839','#f08a24','#e9c46a','#2a9d8f','#2f8f4e','#3a86ff','#4361ee','#8338ec','#c2185b','#ff70a6','#f4f1ea','#37474f'];
 const SHAPES = {
   4:'<polygon points="30,5 56,52 4,52"/><line x1="30" y1="5" x2="30" y2="52"/>',
   6:'<rect x="8" y="8" width="44" height="44" rx="7"/>',
-  8:'<polygon points="30,3 56,30 30,57 4,30"/><line x1="4" y1="30" x2="56" y2="30"/>',
-  10:'<polygon points="30,3 56,27 30,57 4,27"/><polyline points="4,27 30,38 56,27"/><line x1="30" y1="38" x2="30" y2="57"/>',
+  8:'<polygon points="30,3 53,16 53,44 30,57 7,44 7,16"/><polygon points="30,3 53,44 7,44"/>',
+  10:'<polygon points="30,3 55.6,25 55.6,37.6 30,57 4.4,37.6 4.4,25"/><polyline points="30,3 45.1,32.7 30,44 14.9,32.7 30,3"/><line x1="45.1" y1="32.7" x2="55.6" y2="37.6"/><line x1="14.9" y1="32.7" x2="4.4" y2="37.6"/><line x1="30" y1="44" x2="30" y2="57"/>',
   12:'<polygon points="30,3 57,23 47,55 13,55 3,23"/><polygon points="30,14 44,25 39,42 21,42 16,25"/>',
-  20:'<polygon points="30,3 55,16 55,44 30,57 5,44 5,16"/><polygon points="30,14 47,42 13,42"/><line x1="30" y1="3" x2="30" y2="14"/><line x1="5" y1="44" x2="13" y2="42"/><line x1="55" y1="44" x2="47" y2="42"/>',
-  100:'<polygon points="22,6 42,26 22,56 2,26"/><polygon points="40,6 58,26 40,56 30,40"/>'
+  20:'<polygon points="30,3 55,16 55,44 30,57 5,44 5,16"/><polygon points="30,14 47,42 13,42"/><path d="M30,14L5,16M30,14L55,16M47,42L55,16M47,42L55,44M47,42L30,57M13,42L30,57M13,42L5,44M13,42L5,16"/>',
+  100:'<g transform="translate(0,8) scale(.6)"><polygon points="30,3 55.6,25 55.6,37.6 30,57 4.4,37.6 4.4,25"/><polyline points="30,3 45.1,32.7 30,44 14.9,32.7 30,3"/><line x1="45.1" y1="32.7" x2="55.6" y2="37.6"/><line x1="14.9" y1="32.7" x2="4.4" y2="37.6"/><line x1="30" y1="44" x2="30" y2="57"/></g><g transform="translate(24,8) scale(.6)"><polygon points="30,3 55.6,25 55.6,37.6 30,57 4.4,37.6 4.4,25"/><polyline points="30,3 45.1,32.7 30,44 14.9,32.7 30,3"/><line x1="45.1" y1="32.7" x2="55.6" y2="37.6"/><line x1="14.9" y1="32.7" x2="4.4" y2="37.6"/><line x1="30" y1="44" x2="30" y2="57"/></g>'
 };
 const CODE_RE = /^pdt-[a-z0-9]{8}$/;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const okC = c => /^#[0-9a-f]{6}$/i.test(c) ? c : '#888888';
 const cleanStr = (v, n) => String(v ?? '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, n);
@@ -217,11 +240,13 @@ const PEER_OPTS = Object.assign({ debug: 0 }, store.get('dice-peer-opts') || {})
 
 let me = store.get('dice-me');
 let pool = Object.fromEntries(SIDES.map(s => [s, 0]));
-let mod = 0, mode = 'normal', onlyMine = false, hidden = false;
-let rolls = [], shownTop = null, wipeArmed = false;
+let mod = 0, mode = 'normal', onlyMine = false, hidden = false, wipeArmed = false;
+let rolls = [];                 // newest first
+const revealed = new Set();     // ids shown in history (after their dice settle)
 let code = (location.hash.slice(1).match(CODE_RE) || [])[0] || null;
 let isHost = !!code && store.get('dice-host-code') === code;
 let peer = null, conn = null, players = new Map(), myId = null, retryT = null, hostTries = 0;
+let soundOn = store.get('dice-sound') !== false;
 
 /* ---------- roll notation ---------- */
 function parseRoll(src){
@@ -276,24 +301,20 @@ function poolText(){
     if (s === 20 && mode !== 'normal') for (let i = 0; i < pool[s]; i++) parts.push('2d20' + (mode === 'adv' ? 'kh1' : 'kl1'));
     else parts.push(`${pool[s]}d${s}`);
   }
-  if (!parts.length) return '';
-  return parts.join('+') + (mod ? (mod > 0 ? '+' : '-') + Math.abs(mod) : '');
+  return parts.length ? parts.join('+') + (mod ? (mod > 0 ? '+' : '-') + Math.abs(mod) : '') : '';
 }
 
 /* ---------- identity ---------- */
 let pick = me?.color || COLOURS[5];
-function drawSwatches(){
-  $('#swatches').innerHTML = COLOURS.map(c => `<button type="button" style="--c:${c}" data-c="${c}" aria-label="Colour ${c}" aria-pressed="${c === pick}"></button>`).join('');
-}
+function drawSwatches(){ $('#swatches').innerHTML = COLOURS.map(c => `<button type="button" style="--c:${c}" data-c="${c}" aria-label="Colour ${c}" aria-pressed="${c === pick}"></button>`).join(''); }
 $('#swatches').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; pick = b.dataset.c; drawSwatches(); });
 $('#customC').addEventListener('input', e => { pick = e.target.value; drawSwatches(); });
 function openWho(){
   const fresh = !code;
-  $('#whoTitle').textContent = fresh ? 'Start a table' : isHost ? 'Your table' : 'Join the table';
-  $('#whoSub').textContent = fresh ? "You'll be the DM. You get a link to send your players, and your browser hosts the table, so keep this tab open while you play." : 'Your name and colour mark your rolls for everyone at the table.';
+  $('#whoTitle').textContent = fresh ? 'Start a table' : isHost ? 'Your seat' : 'Join the table';
+  $('#whoSub').textContent = fresh ? "You'll be the DM. You get a link to send your players, and your browser hosts the table, so keep this tab open while you play." : 'Your name and colour mark your tray and dice.';
   $('#goBtn').textContent = fresh ? 'Start a table as DM' : isHost ? 'Save' : 'Join as a player';
-  $('#joinBox').hidden = !fresh;
-  $('#whoErr').textContent = '';
+  $('#joinBox').hidden = !fresh; $('#whoErr').textContent = '';
   $('#nameIn').value = me?.name || ''; pick = me?.color || pick; drawSwatches();
   $('#modal').hidden = false; setTimeout(() => $('#nameIn').focus(), 30);
 }
@@ -304,20 +325,18 @@ function saveMe(){
 }
 $('#editMe').addEventListener('click', openWho);
 $('#who').addEventListener('submit', e => {
-  e.preventDefault();
-  if (!saveMe()) return;
+  e.preventDefault(); if (!saveMe()) return;
   $('#modal').hidden = true;
-  if (!code) { startHosting(); }
-  else if (!peer) { isHost ? startHosting() : startJoining(); }
-  else if (isHost) { sendRoster(); }
-  else if (conn && conn.open) { conn.send({ type: 'hello', name: me.name, color: me.color }); }
+  if (!code || !peer) { isHost || !code ? startHosting() : startJoining(); }
+  else if (isHost) sendRoster();
+  else if (conn && conn.open) conn.send({ type: 'hello', name: me.name, color: me.color });
   drawMe(); updateRollBtn(); renderLog();
 });
 $('#joinBtn').addEventListener('click', () => {
   const m = $('#joinIn').value.match(/pdt-[a-z0-9]{8}/);
   if (!m) { $('#whoErr').textContent = "That doesn't look like a table link."; return; }
   if (!saveMe()) return;
-  code = m[0]; isHost = false; history.replaceState(null, '', '#' + code);
+  code = m[0]; isHost = false; setHash(code);
   $('#modal').hidden = true; drawMe(); updateRollBtn(); startJoining();
 });
 function drawMe(){
@@ -326,16 +345,18 @@ function drawMe(){
   $('#wipe').hidden = !isHost;
 }
 
-/* ---------- connection: DM hosts ---------- */
+/* ---------- connection: the DM hosts ---------- */
 function setStatus(t, state){ $('#statusTxt').textContent = t; $('#connDot').className = 'conn ' + (state || ''); }
 function inviteLink(){ return location.href.split('#')[0] + '#' + code; }
 function newCode(){ const a = 'abcdefghijklmnopqrstuvwxyz0123456789'; let c = 'pdt-'; const b = new Uint8Array(8); crypto.getRandomValues(b); for (const x of b) c += a[x % 36]; return c; }
+function setHash(c){ try { history.replaceState(null, '', '#' + c); } catch {} }
 function startHosting(){
-  if (typeof Peer === 'undefined') { setStatus("Couldn't load the connection library. Check your internet and reload."); return; }
-  if (!code) { code = newCode(); history.replaceState(null, '', '#' + code); }
+  if (!code) { code = newCode(); setHash(code); }
   isHost = true; store.set('dice-host-code', code);
   rolls = (store.get('dice-hist-' + code) || []).filter(r => r && typeof r.t === 'number');
-  drawMe(); renderAll();
+  rolls.forEach(r => revealed.add(r.id));
+  drawMe(); renderLog(); sendRoster();
+  if (typeof Peer === 'undefined') { setStatus("Solo mode: couldn't reach the connection service here, so only you can roll. Open the page from its web address to play with friends."); return; }
   $('#invite').hidden = false; $('#inviteUrl').value = inviteLink();
   setStatus('Opening your table…', 'wait');
   peer = new Peer(code, PEER_OPTS);
@@ -348,18 +369,17 @@ function startHosting(){
   peer.on('disconnected', () => { setStatus('Reconnecting your table…', 'wait'); setTimeout(() => { try { peer.reconnect(); } catch {} }, 2000); });
   peer.on('error', err => {
     if (err.type === 'unavailable-id' && hostTries++ < 15) {
-      setStatus('Reclaiming your table… (this takes a few seconds after a reload)', 'wait');
+      setStatus('Reclaiming your table… (takes a few seconds after a reload)', 'wait');
       try { peer.destroy(); } catch {} peer = null; setTimeout(startHosting, 4000);
     } else if (err.type === 'unavailable-id') setStatus('Your table link is stuck. Reload in a minute.');
-    else if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(err.type)) setStatus('Connection trouble. Retrying…', 'wait');
+    else if (['network', 'server-error', 'socket-error', 'socket-closed', 'browser-incompatible'].includes(err.type)) setStatus("Can't reach the connection service right now. You can still roll solo; friends can join once it's back.", 'wait');
   });
 }
 function onHostData(c, d){
   if (!d || typeof d !== 'object') return;
   if (d.type === 'hello') {
-    const p = { id: c.peer, conn: c, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) };
     const isNew = !players.has(c.peer);
-    players.set(c.peer, p);
+    players.set(c.peer, { id: c.peer, conn: c, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) });
     if (isNew) c.send({ type: 'welcome', you: c.peer, history: rolls.filter(r => !r.secret || r.cid === c.peer).slice(0, 150) });
     sendRoster();
   } else if (d.type === 'roll') {
@@ -371,18 +391,17 @@ function onHostData(c, d){
 function makeRoll(who, req){
   const out = rollTerms(parseRoll(cleanStr(req.text, 120)));
   const m = ['adv', 'dis'].includes(req.mode) ? req.mode : 'normal';
-  const roll = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...who,
-    label: cleanStr(req.label, 40), mode: m, secret: !!req.hidden, t: Date.now(), ...out };
+  const roll = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...who, label: cleanStr(req.label, 40), mode: m, secret: !!req.hidden, t: Date.now(), ...out };
   rolls = [roll, ...rolls].slice(0, 200);
   store.set('dice-hist-' + code, rolls);
   for (const p of players.values()) if (!roll.secret || p.id === roll.cid) { try { p.conn.send({ type: 'roll', roll }); } catch {} }
-  renderAll();
+  throwDice(roll);
 }
 function sendRoster(){
   if (!isHost) return;
   const list = [{ name: me?.name || 'DM', color: me?.color || '#888888', role: 'dm', id: 'dm' }, ...[...players.values()].map(p => ({ name: p.name, color: p.color, role: 'player', id: p.id }))];
   for (const p of players.values()) { try { p.conn.send({ type: 'roster', list }); } catch {} }
-  drawParty(list);
+  renderTrays(list);
 }
 
 /* ---------- connection: players join ---------- */
@@ -409,17 +428,21 @@ function connectToHost(){
 }
 function onPlayerData(d){
   if (!d || typeof d !== 'object') return;
-  if (d.type === 'welcome') { myId = d.you; rolls = Array.isArray(d.history) ? d.history : []; shownTop = null; renderAll(); }
-  else if (d.type === 'roll' && d.roll) { rolls = [d.roll, ...rolls.filter(r => r.id !== d.roll.id)].slice(0, 200); renderAll(); }
-  else if (d.type === 'roster') drawParty(Array.isArray(d.list) ? d.list : []);
-  else if (d.type === 'clear') { rolls = []; shownTop = null; renderAll(); resetTop(); }
+  if (d.type === 'welcome') {
+    myId = d.you; rolls = Array.isArray(d.history) ? d.history.filter(r => r && typeof r.t === 'number') : [];
+    revealed.clear(); rolls.forEach(r => revealed.add(r.id)); renderLog();
+    for (const t of trays.values()) showLatest(t);
+  }
+  else if (d.type === 'roll' && d.roll && typeof d.roll.t === 'number') { rolls = [d.roll, ...rolls.filter(r => r.id !== d.roll.id)].slice(0, 200); throwDice(d.roll); }
+  else if (d.type === 'roster') renderTrays(Array.isArray(d.list) ? d.list : []);
+  else if (d.type === 'clear') clearAll();
   else if (d.type === 'error') $('#notErr').textContent = cleanStr(d.msg, 120);
 }
 const mineId = () => isHost ? 'dm' : myId;
 
 /* ---------- sending a roll ---------- */
 function requestRoll(text, m){
-  if (!me) { openWho(); return; }
+  if (!me) { openWho(); return false; }
   const req = { type: 'roll', text, label: $('#label').value, hidden, mode: m || 'normal' };
   if (isHost) {
     try { makeRoll({ cid: 'dm', name: me.name, color: me.color, role: 'dm' }, req); $('#notErr').textContent = ''; return true; }
@@ -430,7 +453,358 @@ function requestRoll(text, m){
   $('#notErr').textContent = ''; conn.send(req); return true;
 }
 
-/* ---------- dice pool UI ---------- */
+/* ---------- trays and 3D dice ---------- */
+/* Each roll is simulated with real physics first (in a split second), then played back.
+   Before playback the die's faces are numbered so the face that ends up on top shows the result the DM's table rolled. */
+const trays = new Map(); // id -> tray
+const PI = Math.PI, TAU = Math.PI * 2, PHI = (1 + Math.sqrt(5)) / 2, ASPECT = 1.5;
+let THREE = null, CANNON = null, R3 = null, CAM = null, BOUNDS = null, libsFailed = false;
+function lum(hex){ const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; }
+const libs = Promise.all([
+  import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js'),
+  import('https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js'),
+  (document.fonts ? document.fonts.ready.catch(() => {}) : Promise.resolve())
+]).then(([T, C]) => {
+  THREE = T; CANNON = C;
+  R3 = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+  if (!R3.getContext()) throw new Error('no webgl');
+  R3.setPixelRatio(1); R3.shadowMap.enabled = true; R3.shadowMap.type = THREE.PCFSoftShadowMap; R3.setClearColor(0x000000, 0);
+  setupCamera();
+  for (const t of trays.values()) { sizeTray(t); showLatest(t); }
+}).catch(() => { libsFailed = true; for (const t of trays.values()) showLatest(t); });
+const ready = () => !!(R3 && CAM && !libsFailed);
+
+function setupCamera(){
+  CAM = new THREE.PerspectiveCamera(30, ASPECT, 1, 100);
+  CAM.position.set(0, 15, 6.2); CAM.lookAt(0, 0, .7); CAM.updateMatrixWorld(); CAM.updateProjectionMatrix();
+  const hit = (nx, ny) => { const v = new THREE.Vector3(nx, ny, .5).unproject(CAM).sub(CAM.position).normalize(); return CAM.position.clone().addScaledVector(v, -CAM.position.y / v.y); };
+  const bl = hit(-1, -1), tl = hit(-1, 1);
+  BOUNDS = { hx: Math.abs(bl.x) - .6, zn: bl.z - .5, zf: tl.z + 1.1 };
+}
+
+/* --- die shapes: vertices, then faces found as the convex hull --- */
+function dieVerts(s){
+  const v = [];
+  if (s === 4) return [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]];
+  if (s === 6) { for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) v.push([x, y, z]); return v; }
+  if (s === 8) return [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  if (s === 10) { const h = 1.1, c = h * (1 - Math.cos(PI / 5)) / (1 + Math.cos(PI / 5)); v.push([0, h, 0], [0, -h, 0]); for (let k = 0; k < 10; k++) v.push([Math.cos(k * PI / 5), k % 2 ? -c : c, Math.sin(k * PI / 5)]); return v; }
+  if (s === 12) { const a = 1 / PHI; for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) v.push([x, y, z]); for (const i of [-1, 1]) for (const j of [-1, 1]) v.push([0, i * a, j * PHI], [i * a, j * PHI, 0], [i * PHI, 0, j * a]); return v; }
+  if (s === 20) { for (const i of [-1, 1]) for (const j of [-1, 1]) v.push([0, i, j * PHI], [i, j * PHI, 0], [i * PHI, 0, j]); return v; }
+  return null;
+}
+const vsub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const vcross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const vdot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const vlen = a => Math.hypot(a[0], a[1], a[2]);
+function hull(V){
+  const planes = [];
+  for (let i = 0; i < V.length; i++) for (let j = i + 1; j < V.length; j++) for (let k = j + 1; k < V.length; k++) {
+    let n = vcross(vsub(V[j], V[i]), vsub(V[k], V[i])); const L = vlen(n); if (L < 1e-9) continue;
+    n = n.map(x => x / L); let d = vdot(n, V[i]), pos = 0, neg = 0;
+    for (const v of V) { const s = vdot(n, v) - d; if (s > 1e-6) pos++; else if (s < -1e-6) neg++; }
+    if (pos && neg) continue;
+    if (pos) { n = n.map(x => -x); d = -d; }
+    if (planes.some(p => vdot(p.n, n) > .9999)) continue;
+    planes.push({ n, idx: V.map((v, q) => q).filter(q => Math.abs(vdot(n, V[q]) - d) < 1e-6) });
+  }
+  return planes.map(p => {
+    const c = [0, 1, 2].map(a => p.idx.reduce((s, q) => s + V[q][a], 0) / p.idx.length);
+    const u0 = vsub(V[p.idx[0]], c), u = u0.map(x => x / vlen(u0)), w = vcross(p.n, u);
+    const ang = q => { const r = vsub(V[q], c); return Math.atan2(vdot(r, w), vdot(r, u)); };
+    const idx = [...p.idx].sort((a, b) => ang(a) - ang(b));
+    const inr = Math.min(...idx.map((q, i) => { const a = V[q], b = V[idx[(i + 1) % idx.length]], ab = vsub(b, a); return vlen(vcross(vsub(c, a), ab)) / vlen(ab); }));
+    return { n: p.n, c, idx, inr };
+  });
+}
+const DIE_SCALE = { 4: 1.3, 6: .95, 8: 1.08, 10: 1.02, 12: 1.04, 20: 1.1 };
+const TPL = {};
+function template(s){
+  if (TPL[s]) return TPL[s];
+  let V = dieVerts(s); const R = Math.max(...V.map(vlen)); V = V.map(v => v.map(x => x / R * DIE_SCALE[s]));
+  const faces = hull(V), pos = [];
+  for (const f of faces) for (let i = 1; i < f.idx.length - 1; i++) for (const q of [f.idx[0], f.idx[i], f.idx[i + 1]]) pos.push(...V[q]);
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
+  return TPL[s] = { V, faces, geo, edges: new THREE.EdgesGeometry(geo, 5) };
+}
+const shapeCache = new Map();
+function physShape(s, sc){
+  const k = s + ':' + sc.toFixed(3); if (shapeCache.has(k)) return shapeCache.get(k);
+  const tp = template(s);
+  const sh = new CANNON.ConvexPolyhedron({ vertices: tp.V.map(v => new CANNON.Vec3(v[0] * sc, v[1] * sc, v[2] * sc)), faces: tp.faces.map(f => f.idx) });
+  shapeCache.set(k, sh); return sh;
+}
+
+/* --- numbers printed on the faces --- */
+const texCache = new Map(), PLANE = { g: null };
+function numMat(txt, ink, dim){
+  const k = txt + ink + (dim ? 'd' : ''); if (texCache.has(k)) return texCache.get(k);
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128; const g = cv.getContext('2d');
+  g.fillStyle = ink; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = `800 ${txt.length > 2 ? 54 : txt.length > 1 ? 72 : 92}px "Alegreya Sans", Arial, sans-serif`;
+  g.fillText(txt, 64, 68);
+  if (txt === '6' || txt === '9') g.fillRect(42, 112, 44, 8);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, opacity: dim ? .45 : 1, roughness: .55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+  texCache.set(k, m); return m;
+}
+function decal(parent, txt, ink, pos, normal, up, size, dim){
+  if (!PLANE.g) PLANE.g = new THREE.PlaneGeometry(1, 1);
+  const m = new THREE.Mesh(PLANE.g, numMat(txt, ink, dim));
+  const z = new THREE.Vector3(...normal).normalize(), y = new THREE.Vector3(...up);
+  y.addScaledVector(z, -y.dot(z)); if (y.lengthSq() < 1e-6) y.set(z.y, -z.x, 0).add(new THREE.Vector3(0, 0, 1e-3)); y.normalize();
+  const x = new THREE.Vector3().crossVectors(y, z);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+  m.position.set(...pos).addScaledVector(z, .006); m.scale.setScalar(size);
+  parent.add(m); return m;
+}
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1) - 1; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function labelDie(mesh, d, q, ink){
+  // q: final orientation; work in the die's own frame
+  const qi = new THREE.Quaternion(q.x, q.y, q.z, q.w).invert();
+  const up = new THREE.Vector3(0, 1, 0).applyQuaternion(qi), scr = new THREE.Vector3(0, 0, -1).applyQuaternion(qi);
+  const U = [up.x, up.y, up.z], S = [scr.x, scr.y, scr.z];
+  const tp = template(d.s);
+  if (d.s === 4) {
+    const topV = tp.V.reduce((b, v, i) => vdot(v, U) > vdot(tp.V[b], U) ? i : b, 0);
+    const rest = shuffle([1, 2, 3, 4].filter(n => n !== d.v)), vals = {}; let ri = 0;
+    tp.V.forEach((v, i) => vals[i] = i === topV ? d.v : rest[ri++]);
+    for (const f of tp.faces) for (const qv of f.idx) {
+      const dir = vsub(tp.V[qv], f.c);
+      decal(mesh, String(vals[qv]), ink, f.c.map((x, a) => x + dir[a] * .55), f.n, dir, f.inr * 1.25);
+    }
+    return;
+  }
+  const top = tp.faces.reduce((b, f, i) => vdot(f.n, U) > vdot(tp.faces[b].n, U) ? i : b, 0);
+  const pct = d.kind === 'tens' || d.kind === 'ones';
+  const show = n => d.kind === 'tens' ? String(n * 10).padStart(2, '0') : String(n);
+  const rest = shuffle(Array.from({ length: d.s }, (_, i) => pct ? i : i + 1).filter(n => n !== d.v)); let ri = 0;
+  tp.faces.forEach((f, i) => {
+    const far = f.idx.reduce((b, qv) => vlen(vsub(tp.V[qv], f.c)) > vlen(vsub(tp.V[b], f.c)) ? qv : b, f.idx[0]);
+    const txt = show(i === top ? d.v : rest[ri++]);
+    decal(mesh, txt, ink, f.c, f.n, i === top ? S : vsub(tp.V[far], f.c), f.inr * (d.s === 10 ? 1.45 : d.s === 20 ? 1.85 : d.s === 8 ? 1.75 : 1.6));
+  });
+}
+
+/* --- physics: run the whole roll up front and record it --- */
+function simulate(specs){
+  const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -40, 0) });
+  world.allowSleep = true; world.solver.iterations = 14;
+  world.defaultContactMaterial.friction = .3; world.defaultContactMaterial.restitution = .45;
+  const plane = (x, y, z, ex, ey, ez) => { const b = new CANNON.Body({ mass: 0, shape: new CANNON.Plane() }); b.position.set(x, y, z); b.quaternion.setFromEuler(ex, ey, ez); world.addBody(b); };
+  plane(0, 0, 0, -PI / 2, 0, 0); plane(0, 9, 0, PI / 2, 0, 0);
+  plane(-BOUNDS.hx, 0, 0, 0, PI / 2, 0); plane(BOUNDS.hx, 0, 0, 0, -PI / 2, 0);
+  plane(0, 0, BOUNDS.zf, 0, 0, 0); plane(0, 0, BOUNDS.zn, 0, PI, 0);
+  const side = Math.random() < .5 ? -1 : 1, events = []; let frame = 0;
+  const zc = (BOUNDS.zf + BOUNDS.zn) / 2, zr = (BOUNDS.zn - BOUNDS.zf) / 2;
+  const bodies = specs.map((d, i) => {
+    const b = new CANNON.Body({ mass: 1, shape: physShape(d.s, d.sc), linearDamping: .1, angularDamping: .1, sleepSpeedLimit: .3, sleepTimeLimit: .3 });
+    const lane = specs.length > 1 ? ((i + .5) / specs.length - .5) * 1.5 : (Math.random() - .5) * .8;
+    b.position.set(side * (BOUNDS.hx - d.sc * 1.3 - (i % 3) * d.sc * 1.6 - Math.random() * .6), 1.6 + Math.random() * 2.2, zc + lane * zr + (Math.random() - .5) * .5);
+    b.quaternion.setFromEuler(Math.random() * TAU, Math.random() * TAU, Math.random() * TAU);
+    b.velocity.set(-side * (8 + Math.random() * 7), -2 + Math.random() * 3, (Math.random() - .5) * 10);
+    b.angularVelocity.set((Math.random() - .5) * 30, (Math.random() - .5) * 30, (Math.random() - .5) * 30);
+    b.addEventListener('collide', e => { const v = Math.abs(e.contact.getImpactVelocityAlongNormal()); if (v > 1.6) events.push({ f: frame, v }); });
+    world.addBody(b); return b;
+  });
+  let calm = 0; const MAX = 360, n = bodies.length, data = new Float32Array(MAX * n * 7);
+  for (frame = 0; frame < MAX; frame++) {
+    world.step(1 / 60);
+    bodies.forEach((b, i) => { const o = (frame * n + i) * 7; data.set([b.position.x, b.position.y, b.position.z, b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w], o); });
+    const still = bodies.every(b => b.sleepState === CANNON.Body.SLEEPING || (b.velocity.length() < .12 && b.angularVelocity.length() < .25 && b.position.y < b.shapes[0].boundingSphereRadius * 1.05));
+    calm = still ? calm + 1 : 0;
+    if (frame > 50 && calm > 8) { frame++; break; }
+  }
+
+  return { count: frame, n, data, events: events.sort((a, b) => a.f - b.f), finalQ: bodies.map(b => b.quaternion.clone()) };
+}
+
+/* --- trays --- */
+function renderTrays(list){
+  const ids = list.map(p => String(p.id));
+  for (const [id, t] of trays) if (!ids.includes(id)) { t.ro.disconnect(); t.el.remove(); trays.delete(id); }
+  const box = $('#trays');
+  if (!list.length) { box.innerHTML = '<div class="alone">Trays appear here as people sit down.</div>'; return; }
+  box.querySelector('.alone')?.remove();
+  const order = [...list].sort((a, b) => (b.id === mineId()) - (a.id === mineId()) || (b.role === 'dm') - (a.role === 'dm'));
+  for (const p of order) {
+    const id = String(p.id);
+    let t = trays.get(id); const fresh = !t;
+    if (!t) t = makeTray(id);
+    t.color = okC(p.color); t.name = cleanStr(p.name, 24);
+    t.el.classList.toggle('mine', id === mineId());
+    t.el.querySelector('.top').innerHTML = `<span class="dot" style="background:${t.color}"></span><span class="nm">${esc(t.name)}</span>${p.role === 'dm' ? '<span class="tag dm">DM</span>' : ''}${id === mineId() ? '<span class="tag">You</span>' : ''}`;
+    box.appendChild(t.el);
+    if (fresh) { sizeTray(t); showLatest(t); }
+  }
+}
+function makeTray(id){
+  const el = document.createElement('div'); el.className = 'tray';
+  el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="banner"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
+  const t = { id, el, cv: el.querySelector('canvas'), rolling: false, roll: null, w: 0, h: 0, lastClack: 0, color: '#888888', name: '', meshes: [], sim: null, scene: null };
+  t.ctx = t.cv.getContext('2d');
+  t.ro = new ResizeObserver(() => sizeTray(t)); t.ro.observe(el.querySelector('.felt'));
+  trays.set(id, t); return t;
+}
+function sizeTray(t){
+  const r = t.cv.parentElement.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (!r.width) return;
+  t.w = r.width; t.h = r.height;
+  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+  if (t.cv.width !== W || t.cv.height !== H) { t.cv.width = W; t.cv.height = H; }
+  if (!t.rolling) paint(t);
+}
+function ensureScene(t){
+  if (t.scene) return;
+  const sc = new THREE.Scene();
+  sc.add(new THREE.HemisphereLight(0xfff1e0, 0x3a1018, 1.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 2.4); dl.position.set(-6, 16, 7); dl.castShadow = true;
+  dl.shadow.mapSize.set(1024, 1024); Object.assign(dl.shadow.camera, { left: -12, right: 12, top: 10, bottom: -10, near: 1, far: 50 }); dl.shadow.camera.updateProjectionMatrix();
+  sc.add(dl);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(60, 40), new THREE.ShadowMaterial({ opacity: .45 })); fl.rotation.x = -PI / 2; fl.receiveShadow = true; sc.add(fl);
+  t.group = new THREE.Group(); sc.add(t.group); t.scene = sc;
+}
+function clearDice(t){
+  if (!t.group) return;
+  for (const m of t.meshes) m.traverse(o => { if (o.material && o.userData.own) o.material.dispose(); });
+  t.group.clear(); t.meshes = []; t.sim = null;
+}
+function flatDice(roll){
+  const out = [];
+  for (const g of roll.groups || []) for (const x of g.r || []) {
+    const s = Number(g.s) || 6, v = Number(x.v) || 1, drop = !!x.d;
+    if (s === 100) {   // a d100 is rolled as a percentile pair: tens die (00–90) + ones die (0–9); 00 + 0 = 100
+      out.push({ s: 10, kind: 'tens', v: Math.floor((v % 100) / 10), drop });
+      out.push({ s: 10, kind: 'ones', v: v % 10, drop });
+    } else out.push({ s, kind: 'std', v, drop });
+  }
+  return out;
+}
+function build(t, roll){
+  ensureScene(t); clearDice(t);
+  const all = flatDice(roll).filter(d => dieVerts(d.s)).slice(0, 30);
+  const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.42, Math.min(1.05, Math.sqrt(area / (Math.max(1, all.length) * 13))));
+  const specs = all.map(d => ({ ...d, sc }));
+  const col = okC(roll.color), ink = lum(col) > .6 ? '#1b1013' : '#fffaf2';
+  t.sim = simulate(specs);
+  t.meshes = specs.map((d, i) => {
+    const tp = template(d.s), grp = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: .35, metalness: .05, flatShading: true, transparent: true });
+    const body = new THREE.Mesh(tp.geo, mat); body.castShadow = true; body.userData.own = true; grp.add(body);
+    if (tp.edges) { const e = new THREE.LineSegments(tp.edges, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: .22 })); e.userData.own = true; grp.add(e); }
+    labelDie(grp, d, t.sim.finalQ[i], ink);
+    grp.scale.setScalar(d.sc); grp.userData = { drop: d.drop, mat };
+    t.group.add(grp); return grp;
+  });
+}
+function applyFrame(t, f){
+  const s = t.sim; if (!s) return;
+  f = Math.max(0, Math.min(s.count - 1, f));
+  t.meshes.forEach((m, i) => { const o = (f * s.n + i) * 7, D = s.data; m.position.set(D[o], D[o + 1], D[o + 2]); m.quaternion.set(D[o + 3], D[o + 4], D[o + 5], D[o + 6]); });
+}
+function paint(t){
+  const W = t.cv.width, H = t.cv.height; if (!W || !H) return;
+  t.ctx.setTransform(1, 0, 0, 1, 0, 0); t.ctx.clearRect(0, 0, W, H);
+  if (ready() && t.scene) {
+    if (R3.domElement.width !== W || R3.domElement.height !== H) R3.setSize(W, H, false);
+    R3.render(t.scene, CAM); t.ctx.drawImage(R3.domElement, 0, 0);
+  } else if (t.roll && (libsFailed || !t.rolling)) {
+    // simple fallback when 3D isn't available: the dice values as chips
+    const vals = flatDice(t.roll).slice(0, 24), s = Math.min(W / 8, H / 3.4), cols = Math.max(1, Math.floor(W / (s * 1.25)));
+    t.ctx.font = `800 ${Math.round(s * .5)}px "Alegreya Sans",sans-serif`; t.ctx.textAlign = 'center'; t.ctx.textBaseline = 'middle';
+    vals.forEach((d, i) => { const x = (i % cols + .5) * s * 1.25 + (W - Math.min(vals.length, cols) * s * 1.25) / 2, y = H / 2 + (Math.floor(i / cols) - (Math.ceil(vals.length / cols) - 1) / 2) * s * 1.2;
+      t.ctx.globalAlpha = d.drop ? .35 : 1; t.ctx.fillStyle = okC(t.roll.color); t.ctx.beginPath(); t.ctx.roundRect(x - s / 2, y - s / 2, s, s, s * .2); t.ctx.fill();
+      t.ctx.fillStyle = lum(okC(t.roll.color)) > .6 ? '#1b1013' : '#fffaf2'; t.ctx.fillText(String(d.v), x, y + 1); });
+    t.ctx.globalAlpha = 1;
+  }
+}
+function fadeDropped(t){ for (const m of t.meshes) if (m.userData.drop) m.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.userData = {}; o.userData.own = true; o.material.opacity = .28; } }); }
+function setFoot(t, roll, done){
+  const n = natTag(roll), m = modeTxt(roll.mode);
+  const tags = `${m ? `<span class="tag m">${m}</span>` : ''}${roll.secret ? '<span class="tag h">Hidden</span>' : ''}${done && n === 'crit' ? '<span class="tag">Natural 20</span>' : done && n === 'fumble' ? '<span class="tag f">Natural 1</span>' : ''}`;
+  t.el.querySelector('.what').innerHTML = `${roll.label ? `<span class="lbl">${esc(roll.label)}</span>` : ''}<span class="fx">${esc(roll.formula)}</span>${tags ? `<span class="tags">${tags}</span>` : ''}`;
+  const tot = t.el.querySelector('.tot');
+  tot.className = 'tot' + (done ? '' : ' wait');
+  tot.textContent = done ? (Number(roll.total) || 0) : 'Rolling…';
+}
+function showLatest(t){
+  const roll = rolls.find(r => r.cid === t.id);
+  if (t.rolling) return;
+  if (!roll) { t.roll = null; if (ready()) { ensureScene(t); clearDice(t); } t.el.querySelector('.what').innerHTML = '<span class="fx">No rolls yet</span>'; t.el.querySelector('.tot').textContent = ''; paint(t); return; }
+  t.roll = roll; setFoot(t, roll, true);
+  if (ready()) { build(t, roll); applyFrame(t, t.sim.count - 1); fadeDropped(t); }
+  paint(t);
+}
+function throwDice(roll){
+  const t = trays.get(String(roll.cid));
+  if (!t) { revealed.add(roll.id); renderLog(); return; }
+  if (t.rolling && t.roll) finish(t);
+  t.el.classList.remove('crit', 'fumble');
+  t.roll = roll; setFoot(t, roll, false); t.el.querySelector('.banner').textContent = '';
+  if (!t.w) sizeTray(t);
+  if (!ready()) {
+    if (libsFailed) { paint(t); finish(t); return; }
+    t.rolling = true; libs.then(() => { t.rolling = false; if (t.roll === roll && !revealed.has(roll.id)) startRoll(t, roll); }); return;
+  }
+  startRoll(t, roll);
+}
+function startRoll(t, roll){
+  if (!ready()) { paint(t); finish(t); return; }
+  build(t, roll);
+  if (REDUCED) { applyFrame(t, t.sim.count - 1); finish(t); return; }
+  t.rolling = true; t.start = performance.now(); t.ev = 0;
+  startLoop();
+}
+let looping = false;
+function startLoop(){ if (looping) return; looping = true; requestAnimationFrame(tick); }
+function tick(now){
+  let any = false;
+  for (const t of trays.values()) {
+    if (!t.rolling || !t.sim) continue; any = true;
+    const f = Math.floor((now - t.start) / 1000 * 60);
+    applyFrame(t, f);
+    while (t.ev < t.sim.events.length && t.sim.events[t.ev].f <= f) { clack(t, t.sim.events[t.ev].v * 90); t.ev++; }
+    paint(t);
+    if (f >= t.sim.count - 1) finish(t);
+  }
+  if (any) requestAnimationFrame(tick); else looping = false;
+}
+function finish(t){
+  const roll = t.roll; t.rolling = false;
+  if (t.sim) { applyFrame(t, t.sim.count - 1); fadeDropped(t); }
+  paint(t); setFoot(t, roll, true);
+  const tot = t.el.querySelector('.tot'); tot.classList.remove('pop'); void tot.offsetWidth; if (!REDUCED) tot.classList.add('pop');
+  const n = natTag(roll);
+  if (n) { t.el.classList.remove('crit', 'fumble'); void t.el.offsetWidth; t.el.classList.add(n); t.el.querySelector('.banner').textContent = n === 'crit' ? 'NAT 20!' : 'Nat 1…'; if (n === 'crit') fanfare(); }
+  revealed.add(roll.id); renderLog();
+}
+
+/* ---------- sound (made in the browser, no files) ---------- */
+let ac = null;
+function audio(){ if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } if (ac && ac.state === 'suspended') ac.resume().catch(() => {}); return ac; }
+document.addEventListener('pointerdown', audio, { once: false, passive: true });
+function clack(t, force){
+  if (!soundOn || !ac || ac.state !== 'running') return;
+  const now = performance.now(); if (now - t.lastClack < 45) return; t.lastClack = now;
+  const len = .035, buf = ac.createBuffer(1, Math.floor(ac.sampleRate * len), ac.sampleRate), ch = buf.getChannelData(0);
+  for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / ch.length, 3);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400 + Math.random() * 1800; bp.Q.value = 4;
+  const g = ac.createGain(); g.gain.value = Math.min(.5, force / 1600);
+  src.connect(bp).connect(g).connect(ac.destination); src.start();
+}
+function fanfare(){
+  if (!soundOn || !ac || ac.state !== 'running') return;
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+    const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + i * .09;
+    o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(.12, s + .02); g.gain.exponentialRampToValueAtTime(.001, s + .5);
+    o.connect(g).connect(ac.destination); o.start(s); o.stop(s + .55);
+  });
+}
+function drawSound(){ $('#soundBtn').textContent = soundOn ? 'Sound on' : 'Sound off'; $('#soundBtn').setAttribute('aria-pressed', soundOn); }
+$('#soundBtn').addEventListener('click', () => { soundOn = !soundOn; store.set('dice-sound', soundOn); drawSound(); audio(); });
+
+/* ---------- controls ---------- */
 function drawDice(){
   $('#dice').innerHTML = SIDES.map(s => `<button type="button" class="die" data-s="${s}" aria-label="Add a d${s}${pool[s] ? ', ' + pool[s] + ' in pool' : ''}">
     <svg viewBox="0 0 60 60" fill="${pool[s] ? 'rgba(227,176,75,.35)' : 'rgba(255,255,255,.08)'}" stroke="#fbeee4" stroke-width="2.4" stroke-linejoin="round">${SHAPES[s]}</svg>
@@ -450,9 +824,7 @@ $('#dice').addEventListener('touchend', e => { if (pressT === 'fired') e.prevent
 $('#dice').addEventListener('touchmove', () => { clearTimeout(pressT); pressT = null; }, { passive: true });
 $('#modUp').addEventListener('click', () => { mod = Math.min(30, mod + 1); drawDice(); });
 $('#modDown').addEventListener('click', () => { mod = Math.max(-30, mod - 1); drawDice(); });
-document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
-  mode = b.dataset.mode; document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b));
-}));
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b)); }));
 $('#clearPool').addEventListener('click', () => { pool = Object.fromEntries(SIDES.map(s => [s, 0])); mod = 0; $('#label').value = ''; drawDice(); });
 $('#hideBtn').addEventListener('click', () => { hidden = !hidden; $('#hideBtn').setAttribute('aria-pressed', hidden); });
 $('#rollBtn').addEventListener('click', () => { const t = poolText(); if (t) requestRoll(t, pool[20] ? mode : 'normal'); });
@@ -465,17 +837,22 @@ $('#copyBtn').addEventListener('click', async () => {
   catch { $('#inviteUrl').select(); $('#copyBtn').textContent = 'Press Ctrl+C'; }
   setTimeout(() => $('#copyBtn').textContent = 'Copy', 2000);
 });
+function clearAll(){
+  rolls = []; revealed.clear(); renderLog();
+  for (const t of trays.values()) { t.rolling = false; t.roll = null; t.el.classList.remove('crit', 'fumble'); showLatest(t); }
+}
 $('#wipe').addEventListener('click', () => {
   if (!isHost) return;
   if (!wipeArmed) { wipeArmed = true; $('#wipe').textContent = 'Tap again to clear for everyone'; setTimeout(() => { wipeArmed = false; $('#wipe').textContent = 'Clear the log'; }, 4000); return; }
   wipeArmed = false; $('#wipe').textContent = 'Clear the log';
-  rolls = []; store.set('dice-hist-' + code, rolls);
+  store.set('dice-hist-' + code, []);
   for (const p of players.values()) { try { p.conn.send({ type: 'clear' }); } catch {} }
-  shownTop = null; renderAll(); resetTop();
+  clearAll();
 });
 
-/* ---------- rendering ---------- */
+/* ---------- history ---------- */
 const ago = t => { const s = Math.max(0, (Date.now() - t) / 1000 | 0); return s < 10 ? 'just now' : s < 60 ? s + 's ago' : s < 3600 ? (s / 60 | 0) + 'm ago' : (s / 3600 | 0) + 'h ago'; };
+const modeTxt = m => m === 'adv' ? 'advantage' : m === 'dis' ? 'disadvantage' : '';
 function natTag(r){
   const kept = (r.groups || []).filter(g => g.s === 20).flatMap(g => (g.r || []).filter(x => !x.d));
   if (kept.length !== 1) return '';
@@ -488,42 +865,22 @@ function bits(r){
     return `<span class="pip ${cls}">${g.neg ? '−' : ''}d${s === 100 ? '%' : s}: ${v}</span>`;
   }).join('')).join('') + (r.mod ? `<span class="pip">${r.mod > 0 ? '+' : '−'}${Math.abs(r.mod)}</span>` : '');
 }
-const modeTxt = m => m === 'adv' ? 'advantage' : m === 'dis' ? 'disadvantage' : '';
-function hiddenTag(r){
-  if (!r.secret) return '';
-  const own = r.cid === mineId();
-  return ` <span class="tag h">${own ? (isHost ? 'Hidden: only you' : 'Hidden: you + DM') : 'Hidden roll'}</span>`;
-}
 function renderLog(){
-  const list = onlyMine ? rolls.filter(r => r.cid === mineId()) : rolls;
-  if (!list.length) { $('#log').innerHTML = `<li class="empty" style="display:block;border-left:2px dashed var(--line)">${onlyMine ? 'You have not rolled yet.' : 'No rolls yet. Be the first to tempt fate.'}</li>`; return; }
+  let list = rolls.filter(r => revealed.has(r.id));
+  if (onlyMine) list = list.filter(r => r.cid === mineId());
+  if (!list.length) { $('#log').innerHTML = `<li class="empty">${onlyMine ? 'You have not rolled yet.' : 'No rolls yet. Be the first to tempt fate.'}</li>`; return; }
   $('#log').innerHTML = list.map(r => {
-    const n = natTag(r), m = modeTxt(r.mode);
+    const n = natTag(r), m = modeTxt(r.mode), own = r.cid === mineId();
     return `<li class="${r.secret ? 'secret' : ''}" style="--c:${okC(r.color)}">
-      <div><span class="nm">${esc(r.name)}</span>${r.role === 'dm' ? ' <span class="tag dm">DM</span>' : ''}${hiddenTag(r)}${r.label ? ` · <b>${esc(r.label)}</b>` : ''}
-        ${n === 'crit' ? ' <span class="tag">Natural 20</span>' : n === 'fumble' ? ' <span class="tag f">Natural 1</span>' : ''}</div>
-      <div class="tot">${Number(r.total) || 0}</div>
+      <div><span class="nm">${esc(r.name)}</span>${r.role === 'dm' ? ' <span class="tag dm">DM</span>' : ''}${r.secret ? ` <span class="tag h">${own ? (isHost ? 'Hidden: only you' : 'Hidden: you + DM') : 'Hidden roll'}</span>` : ''}${r.label ? ` · <b>${esc(r.label)}</b>` : ''}${n === 'crit' ? ' <span class="tag">Natural 20</span>' : n === 'fumble' ? ' <span class="tag f">Natural 1</span>' : ''}</div>
+      <div class="t">${Number(r.total) || 0}</div>
       <div class="meta">${esc(r.formula)}${m ? ' · ' + m : ''} · ${ago(r.t)}</div>
       <div class="bits">${bits(r)}</div></li>`;
   }).join('');
 }
-function resetTop(){ $('#result').className = 'result'; $('#result').innerHTML = '<div><div class="big">d20</div><div class="sub">Tap dice to build a roll, then hit Roll.</div></div>'; }
-function renderTop(){
-  const r = rolls[0]; if (!r || r.id === shownTop) return; shownTop = r.id;
-  const n = natTag(r), m = modeTxt(r.mode);
-  $('#result').className = 'result ' + n;
-  $('#result').innerHTML = `<div><div class="by"><span class="dot" style="background:${okC(r.color)}"></span>${esc(r.name)}${r.role === 'dm' ? ' (DM)' : ''}${r.label ? ' · ' + esc(r.label) : ''}${r.secret ? ' · <span class="tag h">Hidden</span>' : ''}</div>
-    <div class="big spin">${Number(r.total) || 0}</div>
-    <div class="sub">${n === 'crit' ? 'Natural 20! ' : n === 'fumble' ? 'Natural 1… ' : ''}${esc(r.formula)}${m ? ' with ' + m : ''}</div></div>`;
-}
-function renderAll(){ renderTop(); renderLog(); }
-function drawParty(list){
-  $('#party').innerHTML = list.length ? '<span style="align-self:center;color:var(--mute)">At the table:</span>' + list.map(p =>
-    `<span class="chip"><span class="dot" style="background:${okC(p.color)}"></span>${esc(cleanStr(p.name, 24))}${p.role === 'dm' ? ' · DM' : ''}${p.id === mineId() ? ' (you)' : ''}</span>`).join('') : '';
-}
 setInterval(renderLog, 30000);
 
-drawMe(); drawDice(); renderAll();
+drawMe(); drawDice(); drawSound(); renderLog();
 if (!me || !code) openWho();
 else if (isHost) startHosting();
 else startJoining();
