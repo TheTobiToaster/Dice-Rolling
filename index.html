@@ -336,7 +336,7 @@ $('#who').addEventListener('submit', e => {
   $('#modal').hidden = true;
   if (!code || !peer) { isHost || !code ? startHosting() : startJoining(); }
   else if (isHost) sendRoster();
-  else if (conn && conn.open) conn.send({ type: 'hello', name: me.name, color: me.color });
+  else if (conn && conn.open) conn.send({ type: 'hello', name: me.name, color: me.color, seat: SEAT });
   drawMe(); updateRollBtn(); renderLog();
 });
 $('#joinBtn').addEventListener('click', () => {
@@ -370,9 +370,10 @@ function startHosting(){
   peer.on('open', () => { hostTries = 0; setStatus('Table open. Keep this tab open while you play.', 'on'); sendRoster(); });
   peer.on('connection', c => {
     c.on('data', d => onHostData(c, d));
-    c.on('close', () => { players.delete(c.peer); sendRoster(); });
-    c.on('error', () => { players.delete(c.peer); sendRoster(); });
+    c.on('close', () => dropPlayer(c));
+    c.on('error', () => dropPlayer(c));
   });
+  startHeartbeat();
   peer.on('disconnected', () => { setStatus('Reconnecting your table…', 'wait'); setTimeout(() => { try { peer.reconnect(); } catch {} }, 2000); });
   peer.on('error', err => {
     if (err.type === 'unavailable-id' && hostTries++ < 15) {
@@ -382,11 +383,35 @@ function startHosting(){
     else if (['network', 'server-error', 'socket-error', 'socket-closed', 'browser-incompatible'].includes(err.type)) setStatus("Can't reach the connection service right now. You can still roll solo; friends can join once it's back.", 'wait');
   });
 }
+/* Who's still here: a player's page says "bye" when it closes; the DM's page also checks in every 4 s and
+   removes anyone who misses 4 check-ins in a row. Counting missed check-ins (not seconds) means a player
+   whose tab is in the background, where browsers slow timers down, isn't dropped by mistake. */
+let hbN = 0, hbTimer = null;
+function dropPlayer(c){
+  const p = players.get(c.peer);
+  if (!p || p.conn !== c) return;
+  players.delete(c.peer); try { c.close(); } catch {}
+  sendRoster();
+}
+function startHeartbeat(){
+  if (hbTimer) return;
+  hbTimer = setInterval(() => {
+    hbN++;
+    for (const p of [...players.values()]) {
+      if (hbN - p.seen > 4) { dropPlayer(p.conn); continue; }
+      try { p.conn.send({ type: 'hb' }); } catch {}
+    }
+  }, 4000);
+}
 function onHostData(c, d){
   if (!d || typeof d !== 'object') return;
+  const known = players.get(c.peer); if (known && known.conn === c) known.seen = hbN;
+  if (d.type === 'bye') { dropPlayer(c); return; }
+  if (d.type === 'pong') return;
   if (d.type === 'hello') {
-    const isNew = !players.has(c.peer);
-    players.set(c.peer, { id: c.peer, conn: c, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) });
+    const isNew = !players.has(c.peer), seat = cleanStr(d.seat, 40);
+    if (seat) for (const p of [...players.values()]) if (p.seat === seat && p.id !== c.peer) { players.delete(p.id); try { p.conn.close(); } catch {} }   // same person rejoined: drop their old tray
+    players.set(c.peer, { id: c.peer, conn: c, seat, seen: hbN, name: cleanStr(d.name, 24) || 'Someone', color: okC(d.color) });
     if (isNew) c.send({ type: 'welcome', you: c.peer, history: rolls.filter(r => !r.secret || r.cid === c.peer).slice(0, 150) });
     sendRoster();
   } else if (d.type === 'roll') {
@@ -446,13 +471,21 @@ function connectToHost(){
       if (c === conn && pc.iceConnectionState === 'failed') { setStatus("Found the DM's table, but your browsers can't connect directly." + BLOCK_HINT + ' Retrying…', 'wait'); retry(4000); }
     });
   } catch {}
-  c.on('open', () => { if (c !== conn) return; clearTimeout(openT); tries = 0; setStatus('Connected to the table.', 'on'); c.send({ type: 'hello', name: me.name, color: me.color }); });
+  c.on('open', () => { if (c !== conn) return; clearTimeout(openT); tries = 0; setStatus('Connected to the table.', 'on'); lastHost = Date.now(); c.send({ type: 'hello', name: me.name, color: me.color, seat: SEAT }); });
   c.on('data', d => { if (c === conn) onPlayerData(d); });
   c.on('close', () => { if (c !== conn) return; setStatus('Lost the table. Reconnecting…', 'wait'); retry(3000); });
   c.on('error', () => { if (c === conn) retry(3000); });
 }
+const SEAT = (() => { let s = null; try { s = sessionStorage.getItem('dice-seat'); } catch {} if (!s) { s = Math.random().toString(36).slice(2, 12); try { sessionStorage.setItem('dice-seat', s); } catch {} } return s; })();
+let lastHost = 0;
+window.addEventListener('pagehide', () => { if (!isHost && conn && conn.open) { try { conn.send({ type: 'bye' }); } catch {} } });
+setInterval(() => {   // the DM's page has gone quiet for a long time: reconnect
+  if (!isHost && conn && conn.open && lastHost && Date.now() - lastHost > 75000) { setStatus('Lost the table. Reconnecting…', 'wait'); lastHost = 0; connectToHost(); }
+}, 10000);
 function onPlayerData(d){
   if (!d || typeof d !== 'object') return;
+  lastHost = Date.now();
+  if (d.type === 'hb') { try { conn && conn.open && conn.send({ type: 'pong' }); } catch {} return; }
   if (d.type === 'welcome') {
     myId = d.you; rolls = Array.isArray(d.history) ? d.history.filter(r => r && typeof r.t === 'number') : [];
     revealed.clear(); rolls.forEach(r => revealed.add(r.id)); renderLog();
