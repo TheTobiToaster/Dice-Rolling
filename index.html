@@ -33,7 +33,7 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .panel{position:sticky;top:16px;background:radial-gradient(120% 90% at 50% 0%,#7a1729 0%,#4a0c18 75%);color:#fbeee4;border-radius:20px;padding:18px;box-shadow:inset 0 0 0 5px var(--red2),0 14px 30px -18px rgba(0,0,0,.6)}
 .panel h2{font-size:22px;margin-bottom:12px}
 @media(max-width:900px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:'table' 'panel' 'hist'}.panel{position:static}}
-@media(min-width:1440px){main{grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(280px,360px);grid-template-areas:'panel table hist'}
+@media(min-width:1760px){main{grid-template-columns:minmax(300px,360px) minmax(0,1fr) minmax(280px,360px);grid-template-areas:'panel table hist'}
  .histsec{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding-right:4px}}
 .dice{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .die{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:6px 2px 4px;display:grid;justify-items:center;gap:0;min-height:72px;color:#fbeee4}
@@ -69,9 +69,11 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .invite b{flex:0 0 auto}
 .invite input{flex:1 1 200px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:15px}
 .btn{min-height:42px;padding:0 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:800}
-.trays{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:18px}
+.trays{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:18px;justify-content:center}
 .tray:only-child{max-width:1100px}
-@media(min-width:1440px){.trays{grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr))}}
+.trays.fit{display:flex;flex-wrap:wrap;justify-content:center}
+.trays.fit .tray{width:var(--tw);flex:none}
+
 @media(max-width:600px){.trays{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
 @media(max-width:360px){.trays{grid-template-columns:minmax(0,1fr)}}
 .tray{background:linear-gradient(160deg,#7a4b2c,var(--wood) 40%,var(--wood2));border-radius:18px;padding:9px;box-shadow:0 10px 22px -12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);transition:box-shadow .3s}
@@ -80,7 +82,7 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .tray .top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;background:var(--brass);color:#2a1408;white-space:nowrap}
 .tag.h{background:#14080b;color:#f1e6dc}.tag.dm{background:var(--red);color:#fff}.tag.f{background:#e9e2da;color:#22161a}
-.felt{position:relative;aspect-ratio:3/2;border-radius:12px;background:radial-gradient(120% 100% at 50% 20%,#6b1a28 0%,#3e0c16 70%,#2a070e 100%);box-shadow:inset 0 6px 18px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35);overflow:hidden}
+.felt{--pc:#8f1026;position:relative;aspect-ratio:3/2;border-radius:12px;background:#2a1a1c;background:radial-gradient(120% 100% at 50% 20%,color-mix(in oklab,var(--pc) 34%,#2a2224) 0%,color-mix(in oklab,var(--pc) 20%,#1a1416) 70%,color-mix(in oklab,var(--pc) 12%,#0f0b0c) 100%);box-shadow:inset 0 6px 18px rgba(0,0,0,.6),inset 0 0 0 2px rgba(0,0,0,.35);overflow:hidden}
 .felt canvas{position:absolute;inset:0;width:100%;height:100%}
 .felt .banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-family:Cinzel,serif;font-weight:800;font-size:clamp(22px,4vw,34px);color:#ffe27a;text-shadow:0 2px 0 #5a3a00,0 0 18px rgba(255,210,90,.8);pointer-events:none;white-space:nowrap}
 .tray.crit .banner,.tray.fumble .banner{animation:ban 1.6s ease-out forwards}
@@ -92,10 +94,11 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .tray .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:8px 4px 0;color:#f3e3d6;min-height:52px}
 .tray .what{display:flex;flex-direction:column;gap:3px;line-height:1.15;overflow-wrap:anywhere}
 .tray .what .lbl{font-family:Cinzel,serif;font-weight:800;font-size:17px;color:#fbeee4;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.tray .what .fx{font-family:Cinzel,serif;font-weight:600;font-size:15px;color:#e8c37a;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.tray .what{flex:1 1 auto}
+.tray .what .fx{font-family:Cinzel,serif;font-weight:600;font-size:clamp(12px,calc(var(--tw,420px) * .034),16px);color:#e8c37a;text-shadow:0 1px 0 rgba(0,0,0,.4)}
 .tray .what .tags{display:flex;gap:4px;flex-wrap:wrap}
 .tag.m{background:rgba(255,255,255,.16);color:#fbeee4}
-.tray .tot{font-family:Cinzel,serif;font-weight:800;font-size:clamp(34px,2.6vw,48px);line-height:1;color:var(--brass);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tray .tot{flex:none;font-family:Cinzel,serif;font-weight:800;font-size:clamp(26px,calc(var(--tw,420px) * .1),48px);line-height:1;color:var(--brass);text-shadow:0 2px 0 rgba(0,0,0,.4)}
 .tray .tot.wait{font-size:18px;color:#e6cfc6;letter-spacing:.02em}
 .tray .tot.pop{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
@@ -655,12 +658,33 @@ function renderTrays(list){
     let t = trays.get(id); const fresh = !t;
     if (!t) t = makeTray(id);
     t.color = okC(p.color); t.name = cleanStr(p.name, 24);
+    t.el.querySelector('.felt').style.setProperty('--pc', t.color);
     t.el.classList.toggle('mine', id === mineId());
     t.el.querySelector('.top').innerHTML = `<span class="dot" style="background:${t.color}"></span><span class="nm">${esc(t.name)}</span>${p.role === 'dm' ? '<span class="tag dm">DM</span>' : ''}${id === mineId() ? '<span class="tag">You</span>' : ''}`;
     box.appendChild(t.el);
     if (fresh) { sizeTray(t); showLatest(t); }
   }
+  fitTrays(); requestAnimationFrame(fitTrays);
 }
+/* Size the trays so every seat fits on screen at once (wider than 900px); phones scroll as normal. */
+function fitTrays(){
+  const box = $('#trays'), list = [...box.querySelectorAll('.tray')], n = list.length;
+  if (!n || window.innerWidth <= 900) { box.classList.remove('fit'); box.style.removeProperty('--tw'); return; }
+  const gap = 18, W = box.clientWidth, top = box.getBoundingClientRect().top + window.scrollY;
+  const H = Math.max(260, window.innerHeight - top - 20);
+  const felt = list[0].querySelector('.felt'), chrome = Math.max(90, list[0].offsetHeight - felt.offsetHeight), pad = list[0].offsetWidth - felt.offsetWidth || 18;
+  let best = { w: 0, c: 1 };
+  for (let c = 1; c <= n; c++) {
+    const rows = Math.ceil(n / c);
+    const byW = (W - gap * (c - 1)) / c;
+    const byH = ((H - gap * (rows - 1)) / rows - chrome) * 1.5 + pad;
+    const w = Math.min(byW, byH, 1100);
+    if (w > best.w + .5) best = { w, c };
+  }
+  const w = Math.floor(best.w);
+  box.classList.add('fit'); box.style.setProperty('--tw', w + 'px');
+}
+window.addEventListener('resize', () => fitTrays());
 function makeTray(id){
   const el = document.createElement('div'); el.className = 'tray';
   el.innerHTML = `<div class="top"></div><div class="felt"><canvas></canvas><div class="banner"></div></div><div class="foot"><div class="what"><span class="fx">No rolls yet</span></div><div class="tot"></div></div>`;
