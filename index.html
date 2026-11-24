@@ -58,6 +58,9 @@ main{max-width:2400px;margin:0 auto;padding:clamp(16px,2.6vw,32px) max(3vw,14px)
 .hide .sw2::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fbeee4;transition:left .15s}
 .hide[aria-pressed=true]{background:#14080b;border-color:var(--brass)}
 .hide[aria-pressed=true] .sw2{background:var(--brass)}.hide[aria-pressed=true] .sw2::after{left:19px}
+.hidebtn{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 12px;border:0;border-radius:12px;background:linear-gradient(180deg,#f6d77d,#c8922e);color:#3a2306;font-weight:800;font-size:15px;box-shadow:0 3px 0 #8a6420}
+.hidebtn.tall{height:56px}.hidebtn svg{width:18px;height:18px;flex:none}
+.hidebtn:disabled{opacity:.45;cursor:not-allowed}
 .err{color:#ffd2c8;font-size:14px;min-height:20px;margin-top:6px}
 .quick{font-size:13px;color:#e6cfc6;margin:10px 0 0}
 .bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -176,16 +179,17 @@ details.hist summary{cursor:pointer;font-family:Cinzel,serif;font-weight:800;fon
     <div class="row"><input class="field" id="label" maxlength="40" placeholder="What's it for? e.g. Stealth"></div>
     <div class="row">
       <button class="roll" id="rollBtn" type="button" disabled>Roll</button>
+      <button class="hidebtn tall" id="rollHid" type="button" disabled title="Hidden roll: only you and the DM see it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Hidden</button>
       <button class="sec" id="clearPool" type="button" style="height:56px">Clear</button>
     </div>
-    <div class="row"><button type="button" class="hide" id="hideBtn" aria-pressed="false"><span class="sw2"></span><span id="hideTxt">Hidden roll: only me and the DM see it</span></button></div>
     <form class="row" id="typed" autocomplete="off">
-      <input class="field" id="notation" maxlength="60" placeholder="Type a roll: 4d6d1, 2d20kh1+5" aria-label="Type a roll in dice notation">
+      <input class="field" style="flex-basis:90px" id="notation" maxlength="60" placeholder="Type a roll: 4d6d1, 2d20kh1+5" aria-label="Type a roll in dice notation">
       <button class="sec" type="submit">Roll it</button>
+      <button class="hidebtn" type="button" id="typedHid" title="Hidden roll: only you and the DM see it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Hidden</button>
     </form>
     <div class="row"><button class="sec" type="button" id="stats">Ability score (4d6d1)</button></div>
     <div class="err" id="notErr"></div>
-    <p class="quick">Tap a die to add one; right-click or long-press to remove one. Every roll is made by the DM's table, so nobody can fudge their dice.</p>
+    <p class="quick">Tap a die to add one; right-click or long-press to remove one. <b id="hideTxt">Hidden</b> rolls are seen only by you and the DM. Every roll is made by the DM's table, so nobody can fudge their dice.</p>
   </section>
 
   <section class="table" aria-label="The table">
@@ -257,7 +261,7 @@ const PEER_OPTS = Object.assign({ debug: 0 }, store.get('dice-peer-opts') || {})
 
 let me = store.get('dice-me');
 let pool = Object.fromEntries(SIDES.map(s => [s, 0]));
-let mod = 0, mode = 'normal', onlyMine = false, hidden = false, wipeArmed = false;
+let mod = 0, mode = 'normal', onlyMine = false, wipeArmed = false;
 let rolls = [];                 // newest first
 const revealed = new Set();     // ids shown in history (after their dice settle)
 let code = (location.hash.slice(1).match(CODE_RE) || [])[0] || null;
@@ -287,6 +291,7 @@ function parseRoll(src){
     terms.push({ k: 'd', sign, n, sides, op, x });
   }
   if (terms.length > 20) throw 'That roll has too many parts.';
+  if (terms.reduce((t, x) => t + (x.n || 0), 0) > 300) throw 'Keep it under 300 dice per roll.';
   if (!terms.some(t => t.k === 'd')) throw 'Add at least one die, e.g. 1d20+3.';
   return terms;
 }
@@ -359,7 +364,9 @@ $('#joinBtn').addEventListener('click', () => {
 });
 function drawMe(){
   $('#meChip').innerHTML = me ? `<span class="dot" style="background:${okC(me.color)}"></span><span>${esc(me.name)}${isHost ? ' · DM' : ''}</span>` : '<span>Not seated</span>';
-  $('#hideTxt').textContent = isHost ? 'Hidden roll: only you (the DM) see it' : 'Hidden roll: only me and the DM see it';
+  $('#hideTxt').textContent = 'Hidden';
+  const ht = isHost ? 'Hidden roll: only you (the DM) see it' : 'Hidden roll: only you and the DM see it';
+  $('#rollHid').title = ht; $('#typedHid').title = ht;
   $('#wipe').hidden = !isHost;
 }
 
@@ -519,7 +526,7 @@ function onPlayerData(d){
 const mineId = () => isHost ? 'dm' : myId;
 
 /* ---------- sending a roll ---------- */
-function requestRoll(text, m){
+function requestRoll(text, m, hidden = false){
   if (!me) { openWho(); return false; }
   const req = { type: 'roll', text, label: $('#label').value, hidden, mode: m || 'normal' };
   if (isHost) {
@@ -653,7 +660,9 @@ function template(s){
 const shapeCache = new Map();
 function physShape(s, sc){
   const k = s + ':' + sc.toFixed(3); if (shapeCache.has(k)) return shapeCache.get(k);
-  const tp = template(s);
+  let tp = template(s);
+  if (tp.kind === 'crystal' && s > 11) tp = template(11);      // big dice bounce as a simpler stand-in shape:
+  if (tp.kind === 'trap' && s > 14) tp = template(14);         // same size and feel, far less work
   const sh = tp.sphere ? new CANNON.Sphere(sc * .75) : new CANNON.ConvexPolyhedron({ vertices: tp.V.map(v => new CANNON.Vec3(v[0] * sc, v[1] * sc, v[2] * sc)), faces: tp.faces.map(f => f.idx) });
   shapeCache.set(k, sh); return sh;
 }
@@ -708,8 +717,10 @@ function labelDie(mesh, d, q, ink){
   const show = n => d.kind === 'tens' ? String(n * 10).padStart(2, '0') : String(n);
   const rest = shuffle(Array.from({ length: d.s }, (_, i) => pct ? i : i + 1).filter(n => n !== d.v)); let ri = 0;
   const size = tp.kind === 'crystal' ? 1.95 : tp.kind === 'coin' ? 1.25 : tp.kind === 'trap' ? 1.75 : d.s === 10 ? 1.75 : d.s === 20 ? 2.25 : d.s === 8 ? 2.1 : d.s === 6 ? 1.75 : 1.95;
+  const seen = cand.filter(i => i === top || d.s <= 24 || vdot(tp.faces[i].n, VIEW) > .15).sort((a, b) => vdot(tp.faces[b].n, VIEW) - vdot(tp.faces[a].n, VIEW)).slice(0, d.s <= 24 ? 99 : 9);
   for (const i of cand) {
     const f = tp.faces[i];
+    if (!seen.includes(i) && i !== top) { ri++; continue; }
     const far = f.idx.reduce((b, qv) => vlen(vsub(tp.V[qv], f.c)) > vlen(vsub(tp.V[b], f.c)) ? qv : b, f.idx[0]);
     const txt = show(i === top ? d.v : rest[ri++]);
     // on big generated dice the faces are thin slivers, so the result is printed larger, like a sticker
@@ -857,7 +868,9 @@ function flatDice(roll){
 }
 function build(t, roll){
   ensureScene(t); clearDice(t);
-  const flat = flatDice(roll), every = flat.filter(d => drawable(d.s)), all = every.slice(0, 30);
+  const flat = flatDice(roll), every = flat.filter(d => drawable(d.s)), all = [];
+  let budget = 600;                                            // keep big rolls of complex dice from freezing anyone's page
+  for (const d of every) { const cost = 12 + (template(d.s).faces || []).length; if (all.length >= 20 || (all.length && cost > budget)) break; all.push(d); budget -= cost; }
   const extra = every.length - all.length, big = flat.length - every.length;
   t.el.querySelector('.more').textContent = [extra > 0 ? `+${extra} more dice` : '', big > 0 ? `${big} too big to draw` : ''].filter(Boolean).join(' · ');
   const area = (2 * BOUNDS.hx) * (BOUNDS.zn - BOUNDS.zf), sc = Math.max(.45, Math.min(1.2, Math.sqrt(area / (Math.max(1, all.length) * 11))));
@@ -1001,7 +1014,7 @@ function drawDice(){
   $('#modVal').textContent = (mod >= 0 ? '+' : '−') + Math.abs(mod);
   updateRollBtn();
 }
-function updateRollBtn(){ $('#rollBtn').disabled = !SIDES.some(s => pool[s]); $('#rollBtn').textContent = me ? 'Roll' : 'Roll (pick a name first)'; }
+function updateRollBtn(){ $('#rollBtn').disabled = $('#rollHid').disabled = !SIDES.some(s => pool[s]); $('#rollBtn').textContent = me ? 'Roll' : 'Roll (pick a name first)'; }
 const bump = (s, d) => { pool[s] = Math.max(0, Math.min(20, pool[s] + d)); drawDice(); };
 $('#dice').addEventListener('click', e => { const b = e.target.closest('.die'); if (b) bump(+b.dataset.s, 1); });
 $('#dice').addEventListener('contextmenu', e => { const b = e.target.closest('.die'); if (b) { e.preventDefault(); bump(+b.dataset.s, -1); } });
@@ -1013,8 +1026,9 @@ $('#modUp').addEventListener('click', () => { mod = Math.min(30, mod + 1); drawD
 $('#modDown').addEventListener('click', () => { mod = Math.max(-30, mod - 1); drawDice(); });
 document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b)); }));
 $('#clearPool').addEventListener('click', () => { pool = Object.fromEntries(SIDES.map(s => [s, 0])); mod = 0; $('#label').value = ''; drawDice(); });
-$('#hideBtn').addEventListener('click', () => { hidden = !hidden; $('#hideBtn').setAttribute('aria-pressed', hidden); });
 $('#rollBtn').addEventListener('click', () => { const t = poolText(); if (t) requestRoll(t, pool[20] ? mode : 'normal'); });
+$('#rollHid').addEventListener('click', () => { const t = poolText(); if (t) requestRoll(t, pool[20] ? mode : 'normal', true); });
+$('#typedHid').addEventListener('click', () => { const t = $('#notation').value; if (requestRoll(t, 'normal', true)) store.set('dice-last', t); });
 $('#typed').addEventListener('submit', e => { e.preventDefault(); const t = $('#notation').value; if (requestRoll(t)) store.set('dice-last', t); });
 $('#stats').addEventListener('click', () => requestRoll('4d6d1'));
 $('#notation').value = store.get('dice-last') || '';
